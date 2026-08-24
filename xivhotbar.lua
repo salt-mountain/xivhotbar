@@ -52,6 +52,7 @@ tables = require('tables')
 packets = require('packets')
 resources = require('resources')
 require('luau')
+local bench = require('lib/bench')
 
 -- User settings --
 local defaults = require('defaults')
@@ -228,6 +229,7 @@ local function print_help()
 	log("Commands:")
 	log("move: Enables moving the hotbars by dragging them, also writes the changes to settings.xml if used again.")
 	log("reload: Reloads the hotbar, if you have made changes to the hotbar-file, this is faster for loading.")
+	log("bench start|stop|report|reset: Frame-time benchmark harness (see BENCHMARKING.md).")
 	log("Dependencies:")
 	log("shortcuts: Used for weapon skills.")
 end
@@ -270,9 +272,25 @@ windower.register_event('addon command', function(command, ...)
 		end
         windower.chat.input('/ma '..args[1]..' <me>')
     elseif command == 'execute' then
+        bench.enter('keypress_execute')
         change_active_hotbar(tonumber(args[1]))
         if tonumber(args[2]) <= theme_options.columns then 
 			trigger_action(tonumber(args[2]))
+        end
+        bench.leave('keypress_execute')
+    elseif command == 'bench' then
+        local sub = args[1] and args[1]:lower() or 'report'
+        if sub == 'start' then
+            local warmup, clock = bench.start(args[2])
+            log(string.format('bench started (clock: %s, discarding first %d frames)', clock, warmup))
+        elseif sub == 'stop' then
+            bench.stop()
+            log('bench stopped. //htb bench report to view results.')
+        elseif sub == 'reset' then
+            bench.reset()
+            log('bench samples cleared.')
+        else
+            for _, line in ipairs(bench.report_lines()) do log(line) end
         end
     elseif command == 'reload' then
 		print("Reload 2") 
@@ -397,6 +415,8 @@ windower.register_event('prerender',function()
         return
     end
 
+    bench.enter('prerender')
+
     if ui.feedback.is_active then
         ui:show_feedback()
     end
@@ -415,9 +435,15 @@ windower.register_event('prerender',function()
 			moved_row_info.removed_slot.active = false
             ui:load_player_hotbar(player:get_hotbar_info())
 		end
+        bench.enter('check_recasts')
         ui:check_recasts(player:get_hotbar_info())
+        bench.leave('check_recasts')
+        bench.enter('check_hover')
 		ui:check_hover()
+        bench.leave('check_hover')
     end
+
+    bench.leave('prerender')
 end)
 
 
