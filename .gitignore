@@ -1,0 +1,29 @@
+# --- Windower 4 addon: runtime-generated files ---
+# Generated on first login from defaults.lua; per-user, never commit
+data/settings.xml
+
+# Per-character hotbar layouts created by users of the addon.
+# Bundled example/template folders are explicitly re-included below.
+data/*/
+!data/Technyze/
+
+# --- Local workspace ---
+# Upstream clones used for Phase 1 verification; not part of the project
+scratch/
+
+# --- OS noise ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editor files ---
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# --- Misc ---
+*.log
+*.bak
+*.tmp
