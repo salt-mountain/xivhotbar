@@ -1,5 +1,6 @@
 --[[    BSD License Disclaimer
         Copyright © 2020, SirEdeonX, Akirane, Technyze
+        Copyright © 2026, salt-mountain
         All rights reserved.
 
         Redistribution and use in source and binary forms, with or without
@@ -27,16 +28,16 @@
 ]]
 
 --[[
--- Big thanks to:
+-- Upstream authors' (Akirane/Technyze) original thanks, preserved from XIVHotbar2:
 -- - Akaden & Rubenator: For the inspiration to the moving icons/hotbars part
 -- - Maverickdfz:        Inspiration to the mouse actions
 --]]
 
-_addon.name = 'XIVHotbar2'
-_addon.author = 'Edeon, Akirane','Technyze'
-_addon.version = '0.1'
+_addon.name = 'XIVHotbar'
+_addon.author = 'SirEdeonX, Akirane, Technyze, salt-mountain'
+_addon.version = '0.1.0'
 _addon.language = 'english'
-_addon.commands = {'xivhotbar', 'htb', 'execute','xivhotbar2'}
+_addon.commands = {'xivhotbar', 'htb', 'hotbar'}
 
 ----------------------------------------
 -- End of user defined macro placeholder
@@ -207,7 +208,7 @@ end
 windower.register_event('logout', function()
 	coroutine.sleep(3)
 	if windower.ffxi.get_player() == nil then
-		windower.send_command('lua reload xivhotbar2')
+		windower.send_command('lua reload xivhotbar')
 		ui:hide()
 		keyboard:unbind_keys(theme_options.rows, theme_options.columns)		
     end
@@ -467,7 +468,7 @@ end)
 
 windower.register_event('login', function()
     if windower.ffxi.get_player() ~= nil then
-		windower.send_command('lua load xivhotbar2')
+		windower.send_command('lua load xivhotbar')
 		defaults = require('defaults')
 		settings = config.load(defaults)
 		config.save(settings)

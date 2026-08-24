@@ -1,0 +1,25 @@
+NOTICE
+
+This file records attribution and licensing scope that accompanies the
+LICENSE file. The BSD 3-Clause license in LICENSE applies to the source
+code of this addon.
+
+1. Per-file headers. Source files carry the license headers of the authors
+   who wrote them (SirEdeonX, 2017; SirEdeonX and Akirane, 2020; SirEdeonX,
+   Akirane, and Technyze, 2020). Those notices are preserved verbatim and
+   remain in effect. The LICENSE file states the same BSD 3-Clause terms at
+   the repository level; it does not replace or alter any per-file notice.
+
+2. Windower resources data. The files priv_res/spells.lua, priv_res/jobs.lua,
+   priv_res/job_abilities.lua, priv_res/weapon_skills.lua, and
+   priv_res/horizon_spells.lua are generated copies of the Windower
+   project's "resources" library, Copyright © 2013-2022, Windower, under
+   the Windower project's BSD 3-Clause license. Each of those files retains
+   the Windower license notice within it.
+
+3. Game assets. The image files under images/ include icons derived from
+   FINAL FANTASY XI and FINAL FANTASY XIV, which are the intellectual
+   property of Square Enix Holdings Co., Ltd. Those assets are NOT covered
+   by the LICENSE file and no rights over them are claimed by the authors.
+   See ASSETS.md for the inventory. This addon is a non-commercial fan
+   project and is not affiliated with or endorsed by Square Enix.
