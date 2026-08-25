@@ -229,7 +229,7 @@ local function print_help()
 	log("Commands:")
 	log("move: Enables moving the hotbars by dragging them, also writes the changes to settings.xml if used again.")
 	log("reload: Reloads the hotbar, if you have made changes to the hotbar-file, this is faster for loading.")
-	log("bench start|stop|report|reset: Frame-time benchmark harness (see BENCHMARKING.md).")
+	log("bench start|stop|report|reset: Frame-time measurement for development.")
 	log("Dependencies:")
 	log("shortcuts: Used for weapon skills.")
 end
