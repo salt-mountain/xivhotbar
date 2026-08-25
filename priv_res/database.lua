@@ -1,5 +1,6 @@
 --[[
         Copyright © 2020, SirEdeonX, Akirane, Technyze
+        Copyright © 2026, salt-mountain
         All rights reserved.
 
         Redistribution and use in source and binary forms, with or without
@@ -108,7 +109,8 @@ function database:parse_ws_lua()
 		local new_weapon_skill       = {}
 		new_weapon_skill.id          = tostring(contents[key].id)
 		new_weapon_skill.icon        = string.format("%02d", database:map_ws(contents[key].id))
-        new_weapon_skill.desc        = ability_descriptions[contents[key].id].en
+        local ws_desc                = ability_descriptions[contents[key].id]
+        new_weapon_skill.desc        = ws_desc and ws_desc.en or ''
 		new_weapon_skill.name        = contents[key].en
 		new_weapon_skill.tpcost      = tostring(1000)
 		new_weapon_skill.cast        = tostring(0)
@@ -178,7 +180,8 @@ function database:parse_abilities_lua()
 		new_abil.mpcost  = tonumber(contents[key].mp_cost)
 		new_abil.tpcost  = tostring(contents[key].tp_cost)
 		new_abil.range   = ranges[contents[key].range]
-        new_abil.desc    = ability_descriptions[contents[key].id + 512].en
+        local abil_desc  = ability_descriptions[contents[key].id + 512]
+        new_abil.desc    = abil_desc and abil_desc.en or ''
 		new_abil.cast    = tostring(0)
 		new_abil.recast  = tostring(0)
 		new_abil.element = tostring(contents[key].element)
@@ -217,7 +220,8 @@ function database:parse_spells_lua()
         new_spell.element = contents[key].element
         new_spell.recast  = contents[key].recast
 		new_spell.range   = ranges[contents[key].range]
-        new_spell.desc    = spell_descriptions[contents[key].id].en
+        local spell_desc  = spell_descriptions[contents[key].id]
+        new_spell.desc    = spell_desc and spell_desc.en or ''
 
         self.ma[(new_spell.name):lower()] = new_spell
     end

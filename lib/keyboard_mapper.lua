@@ -1,5 +1,6 @@
 --[[
         Copyright © 2020, Akirane, Technyze
+        Copyright © 2026, salt-mountain
         All rights reserved.
 
         Redistribution and use in source and binary forms, with or without
@@ -53,7 +54,7 @@ function keyboard:parse_keybinds()
 			col_value = string.lower(col_value)
 			col_value = string.gsub(col_value, " ", "")
 			col_list = string.split(col_value, "+")
-			if table.getn(col_list) ~= 1 then
+			if #col_list ~= 1 then
 				for string_value in ipairs(col_list) do
 					--print("string_value: " ..col_list[string_value])
 					if (col_list[string_value] ~= "number") then

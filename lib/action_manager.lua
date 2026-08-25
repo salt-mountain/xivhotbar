@@ -1,5 +1,6 @@
 --[[
         Copyright © 2020, SirEdeonX, Akirane, Technyze
+        Copyright © 2026, salt-mountain
         All rights reserved.
 
         Redistribution and use in source and binary forms, with or without
@@ -622,7 +623,7 @@ function action_manager:swap_actions(player, swap_table)
 				file_manager:write_changes(dest_action, d_row, d_slot, s_row, s_slot, 'b')
 			end
 		else
-			print("XIVHOTBAR2: Cannot swap icons if the dragged icon is empty!")
+			print("XIVHotbar: Cannot swap icons if the dragged icon is empty!")
 		end
     else -- field
 
@@ -671,7 +672,7 @@ end
 
 function action_manager:insert_action(player_subjob, args)
     if not args[6] then
-        print('XIVHOTBAR2: Invalid arguments: set <mode> <hotbar> <slot> <action_type> <action> <target (optional)> <alias (optional)> <icon (optional)>')
+        print('XIVHotbar: Invalid arguments: set <mode> <hotbar> <slot> <action_type> <action> <target (optional)> <alias (optional)> <icon (optional)>')
         return
     end
     local prio = args[1]:lower()
@@ -745,7 +746,7 @@ function action_manager:load(player)
     local job_file = loadfile(basepath .. player.main_job .. '.lua')
     local general_file = loadfile(basepath .. 'General.lua')
     if job_file == nil then 
-        print(string.format("XIVHOTBAR2: Couldn't find the job file %s.lua!", player.main_job))
+        print(string.format("XIVHotbar: Couldn't find the job file %s.lua!", player.main_job))
     else
    
     setfenv(job_file, _job_fileG) --Set a function's (JOB.lua) enviroment(global) into a table(_job_fileG)
