@@ -44,7 +44,7 @@ from, and how it is handled.
 
 ## Data tables
 
-`priv_res/spells.lua`, `jobs.lua`, `job_abilities.lua`, `weapon_skills.lua`,
-and `horizon_spells.lua` are generated copies of the Windower project's
+`priv_res/spells.lua`, `jobs.lua`, `job_abilities.lua`, and
+`weapon_skills.lua` are generated copies of the Windower project's
 `resources` library, © 2013-2022 Windower, BSD-3-Clause. Each file retains
 the Windower license notice.

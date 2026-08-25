@@ -1,5 +1,6 @@
 --[[
         Copyright © 2020, SirEdeonX, Akirane, Technyze
+        Copyright © 2026, salt-mountain
         All rights reserved.
 
         Redistribution and use in source and binary forms, with or without
@@ -34,7 +35,6 @@ defaults.General.HideEnvironment = false
 defaults.General.HideInventoryCount = false
 defaults.General.EnableWeaponSwitching = false
 defaults.General.HideHotbarNumbers = false
-defaults.General.PlayingHorizonXI = false
 
 defaults.Hotbar = {}
 defaults.Hotbar.ShowActionDescription = true

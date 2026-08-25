@@ -1,5 +1,6 @@
 --[[
         Copyright © 2020, SirEdeonX, Akirane, Technyze
+        Copyright © 2026, salt-mountain
         All rights reserved.
 
         Redistribution and use in source and binary forms, with or without
@@ -48,7 +49,6 @@ theme.apply = function(settings)
     options.hide_hotbar_numbers     = sg.HideHotbarNumbers
     options.hide_env                = sg.HideEnvironment
     options.hide_inventory_count    = sg.HideInventoryCount
-    options.playing_on_horizon      = sg.PlayingHorizonXI
 
 
     -- Hotbar

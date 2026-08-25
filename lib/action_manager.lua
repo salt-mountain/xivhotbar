@@ -30,7 +30,6 @@
 local file_manager = require('lib/file_manager')
 local ui = require('lib/ui')
 local spell_list = require('priv_res/spells')
-local horizon_spell_list = require('priv_res/horizon_spells')
 local ws_list = require('priv_res/weapon_skills')
 local ability_list = require('priv_res/job_abilities')
 local job_list = require('priv_res/jobs')
@@ -489,19 +488,10 @@ local function parse_binds(theme_options, player, hotbar)
     missing_actions = {}
 
     -- Create Learned Spells List
-    if theme_options.playing_on_horizon == true then
-        spells = horizon_spell_list
-        for key,val in pairs(horizon_spell_list) do
-            if windower.ffxi.get_spells()[spells[key]['id']] == true then 
-                table.insert(learned_spells_name,spells[key]['en']) 
-            end
-        end
-    elseif theme_options.playing_on_horizon == false then
-        spells = spell_list
-        for key,val in pairs(spell_list) do
-            if windower.ffxi.get_spells()[spells[key]['id']] == true then 
-                table.insert(learned_spells_name,spells[key]['en']) 
-            end
+    spells = spell_list
+    for key,val in pairs(spell_list) do
+        if windower.ffxi.get_spells()[spells[key]['id']] == true then 
+            table.insert(learned_spells_name,spells[key]['en']) 
         end
     end
     
