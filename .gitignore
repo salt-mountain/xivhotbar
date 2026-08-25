@@ -5,7 +5,7 @@ data/settings.xml
 # Per-character hotbar layouts created by users of the addon.
 # Bundled example/template folders are explicitly re-included below.
 data/*/
-!data/Technyze/
+!data/examples/
 
 # --- Local workspace ---
 # Upstream clones used for Phase 1 verification; not part of the project
