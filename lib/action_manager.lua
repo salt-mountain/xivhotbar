@@ -733,6 +733,29 @@ function action_manager:load(player)
 	action_manager:init_action_tables() -- Create/Initialize MainJob, SubJob, Stance, Weaponskill, Stance Tables
     
     local basepath = windower.addon_path .. 'data/'..player.name..'/'
+
+    -- Create this character's job and General files if they don't exist yet.
+    -- Existing files are left completely alone.
+    local created, failures = file_manager:ensure_character_files(player.name, player.main_job)
+    for _, message in ipairs(created) do
+        log(message)
+    end
+    if #failures > 0 then
+        -- Mirror to the Windower console as well as the chat log: if setup is
+        -- failing, the in-game chat may not be a reliable place to read this.
+        local instructions = 'create data/' .. player.name .. '/' .. player.main_job
+            .. '.lua and General.lua by hand, or copy them from data/examples/.'
+        for _, message in ipairs(failures) do
+            log('could not create hotbar file: ' .. message)
+            windower.console.write('XIVHotbar: could not create hotbar file: ' .. message)
+        end
+        log(instructions)
+        windower.console.write('XIVHotbar: ' .. instructions)
+        self.setup_failed = true
+        return
+    end
+    self.setup_failed = false
+
     local job_file = loadfile(basepath .. player.main_job .. '.lua')
     local general_file = loadfile(basepath .. 'General.lua')
     if job_file == nil then 

@@ -69,6 +69,7 @@ local theme_options = theme.apply(settings)
 local keyboard = require('lib/keyboard_mapper')
 local box = require('lib/move_box')
 local player = require('lib/player')
+local action_manager = require('lib/action_manager')
 local ui = require('lib/ui')
 local xiv
 local current_zone = 0
@@ -118,7 +119,14 @@ function initialize()
 	ui:update_tp(current_tp)
     player:initialize(windower_player, server, theme_options)
     player:load_hotbar()
-    keyboard:bind_keys(theme_options.rows, theme_options.columns)
+    -- Don't claim the user's keys if we have no hotbar data to act on: a
+    -- bound key whose action never loads is a key the game no longer sees.
+    if action_manager.setup_failed then
+        log('no hotbar data loaded, leaving keybinds alone.')
+        windower.console.write('XIVHotbar: no hotbar data loaded, leaving keybinds alone.')
+    else
+        keyboard:bind_keys(theme_options.rows, theme_options.columns)
+    end
     ui:load_player_hotbar(player:get_hotbar_info())
     ui.hotbar.ready = true
     ui.hotbar.initialized = true

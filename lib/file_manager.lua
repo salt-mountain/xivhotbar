@@ -1,5 +1,6 @@
 --[[
         Copyright © 2020, Akirane, Technyze
+        Copyright © 2026, salt-mountain
         All rights reserved.
 
         Redistribution and use in source and binary forms, with or without
@@ -31,6 +32,109 @@ files = require('files')
 
 local current_job_file_path = ""
 local current_general_file_path = ""
+
+--[[
+    Starter contents for a character's hotbar files.
+
+    Job files and the General file use different tables, so they get
+    different bodies. Both are created empty: the user fills them in, and
+    data/examples/ holds fuller layouts to copy from.
+]]
+local function starter_body(player_name, file_name, is_general)
+    local notes =
+        '-- ' .. file_name .. ' for ' .. player_name .. '\n' ..
+        '-- Created automatically. This file is yours to edit; the addon will\n' ..
+        '-- never overwrite it. See data/examples/ for fuller layouts.\n' ..
+        '--\n' ..
+        '-- Each line is one slot:\n' ..
+        "--   {'environment hotbar slot', 'type', 'action', 'target', 'label', 'icon'}\n" ..
+        '--\n' ..
+        "--   type: ma (magic), ja (ability), ws (weaponskill), input (any game\n" ..
+        "--         command), macro (semicolon-separated steps), gs (GearSwap)\n" ..
+        "--   target: me, t, bt, stpc, stnpc, or blank\n" ..
+        '--\n'
+
+    if is_general then
+        return notes ..
+            "-- Shared across every job. Use the 'field' environment here; this is\n" ..
+            "-- the General page, toggled with the backslash key by default.\n" ..
+            '--\n' ..
+            "-- Example:  {'field 1 1', 'input', '/lastsynth', '', 'Craft'},\n\n" ..
+            "xivhotbar_keybinds_general['Root'] = {\n" ..
+            '}\n\n' ..
+            'return xivhotbar_keybinds_general\n'
+    end
+
+    return notes ..
+        "-- 'Base' holds your main job actions. You can also add blocks named\n" ..
+        "-- after a subjob (['WHM']), a weapon type (['Sword']), or a pet or\n" ..
+        "-- stance (['Carbuncle'], ['Light Arts']).\n" ..
+        '--\n' ..
+        "-- Example:  {'battle 1 1', 'ja', 'Berserk', 'me', 'Berserk'},\n\n" ..
+        "xivhotbar_keybinds_job['Base'] = {\n" ..
+        '}\n\n' ..
+        'return xivhotbar_keybinds_job\n'
+end
+
+--[[
+    Create a character's hotbar file if it does not already exist.
+
+    Create-once semantics: an existing file is never read, rewritten or
+    overwritten here, because by then it is the user's own. Files are only
+    modified later through explicit user actions (dragging a slot, //htb add,
+    //htb set, //htb delete).
+
+    Returns true if the file is present afterwards, plus a message when one
+    was created, or false and an error if it could not be created.
+]]
+function file_manager:ensure_hotbar_file(player_name, file_name, is_general)
+    local relative_path = 'data/' .. player_name .. '/' .. file_name
+
+    if windower.file_exists(windower.addon_path .. relative_path) then
+        return true, nil
+    end
+
+    local target = files.new(relative_path, true)
+    if target == nil then
+        return false, 'could not create ' .. relative_path
+    end
+
+    local ok, err = pcall(function()
+        target:write(starter_body(player_name, file_name, is_general))
+    end)
+
+    if not ok then
+        return false, tostring(err)
+    end
+
+    return true, 'created ' .. relative_path
+end
+
+--[[
+    Ensure a character has the two files the loader needs: the file for their
+    current job, and the shared General file.
+]]
+function file_manager:ensure_character_files(player_name, player_job)
+    local created = {}
+    local failures = {}
+
+    local wanted = {
+        {name = player_job .. '.lua', general = false},
+        {name = 'General.lua',        general = true},
+    }
+
+    for _, entry in ipairs(wanted) do
+        local ok, message = self:ensure_hotbar_file(player_name, entry.name, entry.general)
+        if not ok then
+            table.insert(failures, message)
+        elseif message ~= nil then
+            table.insert(created, message)
+        end
+    end
+
+    return created, failures
+end
+
 
 
 local function fill_table(file)
