@@ -59,7 +59,10 @@ defaults.Hotbar.Theme.Slot = 'ffxiv'
 defaults.Hotbar.Theme.Frame = 'ffxiv'
 
 defaults.Hotbar.Style = {}
-defaults.Hotbar.Style.HotbarCount = 6
+-- Number of hotbar rows shown, and the number of keybind rows bound from
+-- data/keybinds.lua. Two rows are bound by default; raise this after adding
+-- rows there.
+defaults.Hotbar.Style.HotbarCount = 2
 defaults.Hotbar.Style.HotbarLength = 12
 defaults.Hotbar.Style.SlotIconScale = 1
 defaults.Hotbar.Style.SlotAlpha = 100

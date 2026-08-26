@@ -1,97 +1,95 @@
-keybinds = {
-	-- Hotbar Row #1
-	{
-	    '1',           -- Hotbar Row #1 Col #1
-	    '2',           -- Hotbar Row #1 Col #2
-	    '3',           -- Hotbar Row #1 Col #3
-	    '4',           -- Hotbar Row #1 Col #4
-	    '5',           -- Hotbar Row #1 Col #5
-	    '6',           -- Hotbar Row #1 Col #6
-	    '7',           -- Hotbar Row #1 Col #7
-	    '8',           -- Hotbar Row #1 Col #8
-	    '9',           -- Hotbar Row #1 Col #9
-	    '0',           -- Hotbar Row #1 Col #10
-	    '-',           -- Hotbar Row #1 Col #11
-	    '=',           -- Hotbar Row #1 Col #12
-	},
-	-- Hotbar Row #2
-	{
-	    'ALT + 1',    -- Hotbar Row #3 Col #1
-	    'ALT + 2',    -- Hotbar Row #3 Col #2
-	    'ALT + 3',    -- Hotbar Row #3 Col #3
-	    'ALT + 4',    -- Hotbar Row #3 Col #4
-	    'ALT + 5',    -- Hotbar Row #3 Col #5
-	    'ALT + 6',    -- Hotbar Row #3 Col #6
-	    'ALT + 7',    -- Hotbar Row #3 Col #7
-	    'ALT + 8',    -- Hotbar Row #3 Col #8
-	    'ALT + 9',    -- Hotbar Row #3 Col #9
-	    'ALT + 0',    -- Hotbar Row #3 Col #10
-	    'ALT + -',    -- Hotbar Row #4 Col #11
-	    'ALT + =',    -- Hotbar Row #4 Col #12
-	},
-	-- Hotbar Row #3
-	{
-	    'CTRL + 1',    -- Hotbar Row #3 Col #1
-	    'CTRL + 2',    -- Hotbar Row #3 Col #2
-	    'CTRL + 3',    -- Hotbar Row #3 Col #3
-	    'CTRL + 4',    -- Hotbar Row #3 Col #4
-	    'CTRL + 5',    -- Hotbar Row #3 Col #5
-	    'CTRL + 6',    -- Hotbar Row #3 Col #6
-	    'CTRL + 7',    -- Hotbar Row #3 Col #7
-	    'CTRL + 8',    -- Hotbar Row #3 Col #8
-	    'CTRL + 9',    -- Hotbar Row #3 Col #9
-	    'CTRL + 0',    -- Hotbar Row #3 Col #10
-	    'CTRL + -',    -- Hotbar Row #4 Col #11
-	    'CTRL + =',    -- Hotbar Row #4 Col #12
-	},
-	-- Hotbar Row #4
-	{
-	    'Shift + 1',    -- Hotbar Row #3 Col #1
-	    'Shift + 2',    -- Hotbar Row #3 Col #2
-	    'Shift + 3',    -- Hotbar Row #3 Col #3
-	    'Shift + 4',    -- Hotbar Row #3 Col #4
-	    'Shift + 5',    -- Hotbar Row #3 Col #5
-	    'Shift + 6',    -- Hotbar Row #3 Col #6
-	    'Shift + 7',    -- Hotbar Row #3 Col #7
-	    'Shift + 8',    -- Hotbar Row #3 Col #8
-	    'Shift + 9',    -- Hotbar Row #3 Col #9
-	    'Shift + 0',    -- Hotbar Row #3 Col #10
-	    'Shift + -',    -- Hotbar Row #4 Col #11
-	    'Shift + =',    -- Hotbar Row #4 Col #12
-	},
+--[[
+    Hotbar keybinds.
 
-	
-	-- Hotbar Row #5
-	{
-	    'Q',    -- Hotbar Row #5 Col #1
-	    'W',    -- Hotbar Row #5 Col #2
-	    'E',    -- Hotbar Row #5 Col #3
-	    'R',    -- Hotbar Row #5 Col #4
-	    'T',    -- Hotbar Row #5 Col #5
-	    'Y',    -- Hotbar Row #5 Col #6
-	    'A',    -- Hotbar Row #5 Col #7
-	    'S',    -- Hotbar Row #5 Col #8
-	    'D',    -- Hotbar Row #5 Col #9
-	    'F',    -- Hotbar Row #5 Col #10
-	    'G',    -- Hotbar Row #5 Col #11
-	    'H',    -- Hotbar Row #5 Col #12
-	},
-	
-	-- Hotbar Row #6
-	{
-	    'SHIFT + Q',    -- Hotbar Row #5 Col #1
-	    'SHIFT + W',    -- Hotbar Row #5 Col #2
-	    'SHIFT + E',    -- Hotbar Row #5 Col #3
-	    'SHIFT + R',    -- Hotbar Row #5 Col #4
-	    'SHIFT + T',    -- Hotbar Row #5 Col #5
-	    'SHIFT + Y',    -- Hotbar Row #5 Col #6
-	    'SHIFT + A',    -- Hotbar Row #5 Col #7
-	    'SHIFT + S',    -- Hotbar Row #5 Col #8
-	    'SHIFT + D',    -- Hotbar Row #5 Col #9
-	    'SHIFT + F',    -- Hotbar Row #5 Col #10
-	    'SHIFT + G',    -- Hotbar Row #5 Col #11
-	    'SHIFT + H',    -- Hotbar Row #5 Col #12
-	}
+    Each row below maps keyboard keys to the slots of one hotbar row, in
+    order: the first entry is slot 1, the second is slot 2, and so on.
+    A slot with no key (or an empty string) simply isn't bound.
+
+    Two rows are bound by default. They deliberately avoid:
+      - letter keys, which FFXI uses for movement
+      - the - and = keys, which FFXI uses for menus
+      - CTRL+number and ALT+number, which are FFXI's two macro banks
+
+    Uncomment the example rows below to bind more. Note that the number of
+    rows actually bound is also limited by Hotbar/Style/HotbarCount in
+    data/settings.xml, so raise that too if you add rows.
+
+    Slots can hold more than spells and abilities: a slot can run any game
+    command, a multi-step macro with waits, a GearSwap command, or another
+    addon's command. See the README for the job-file action format.
+
+    Editing note: entries are positional. If you remove a key from the
+    middle of a row, every key after it shifts up one slot. To leave a slot
+    unbound while keeping the ones after it in place, use an empty string
+    ('') rather than deleting the line.
+
+    Modifier syntax: 'CTRL + 1', 'ALT + 1', 'SHIFT + 1'.
+]]
+
+keybinds = {
+
+    -- Hotbar Row #1: number keys
+    {
+        '1',            -- Slot #1
+        '2',            -- Slot #2
+        '3',            -- Slot #3
+        '4',            -- Slot #4
+        '5',            -- Slot #5
+        '6',            -- Slot #6
+        '7',            -- Slot #7
+        '8',            -- Slot #8
+        '9',            -- Slot #9
+        '0',            -- Slot #10
+        '',             -- Slot #11 (unbound: - opens the game menu)
+        '',             -- Slot #12 (unbound: = is used by the game)
+    },
+
+    -- Hotbar Row #2: shift + number keys
+    {
+        'SHIFT + 1',    -- Slot #1
+        'SHIFT + 2',    -- Slot #2
+        'SHIFT + 3',    -- Slot #3
+        'SHIFT + 4',    -- Slot #4
+        'SHIFT + 5',    -- Slot #5
+        'SHIFT + 6',    -- Slot #6
+        'SHIFT + 7',    -- Slot #7
+        'SHIFT + 8',    -- Slot #8
+        'SHIFT + 9',    -- Slot #9
+        'SHIFT + 0',    -- Slot #10
+        '',             -- Slot #11
+        '',             -- Slot #12
+    },
+
+    -- Hotbar Row #3 example: CTRL + number keys.
+    -- This takes over FFXI's CTRL macro bank. Fine if you're moving your
+    -- macros into job files (a slot can hold a full multi-step macro), but
+    -- your in-game CTRL macros will stop working while the addon is loaded.
+    -- {
+    --     'CTRL + 1', 'CTRL + 2', 'CTRL + 3', 'CTRL + 4', 'CTRL + 5', 'CTRL + 6',
+    --     'CTRL + 7', 'CTRL + 8', 'CTRL + 9', 'CTRL + 0', '', '',
+    -- },
+
+    -- Hotbar Row #4 example: ALT + number keys.
+    -- Same tradeoff as above, for FFXI's ALT macro bank.
+    -- {
+    --     'ALT + 1', 'ALT + 2', 'ALT + 3', 'ALT + 4', 'ALT + 5', 'ALT + 6',
+    --     'ALT + 7', 'ALT + 8', 'ALT + 9', 'ALT + 0', '', '',
+    -- },
+
+    -- Hotbar Row #5 example: letter keys.
+    -- Only do this if you do NOT move with WASD. On the default full-size
+    -- keyboard layout these are movement keys, and binding them here means
+    -- the game never sees them.
+    -- {
+    --     'Q', 'W', 'E', 'R', 'T', 'Y', 'A', 'S', 'D', 'F', 'G', 'H',
+    -- },
+
+    -- Hotbar Row #6 example: shift + letter keys.
+    -- {
+    --     'SHIFT + Q', 'SHIFT + W', 'SHIFT + E', 'SHIFT + R', 'SHIFT + T', 'SHIFT + Y',
+    --     'SHIFT + A', 'SHIFT + S', 'SHIFT + D', 'SHIFT + F', 'SHIFT + G', 'SHIFT + H',
+    -- },
+
 }
 
 return keybinds

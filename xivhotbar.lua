@@ -205,6 +205,15 @@ end
 -- Bind Events --
 -----------------
 
+-- ON UNLOAD --
+-- Windower binds outlive the addon, so every key this addon bound has to be
+-- released here. Without this, unloading leaves those keys pointing at a
+-- command that no longer exists and they stay dead until Windower restarts.
+windower.register_event('unload', function()
+	keyboard:unbind_all()
+end)
+
+
 -- ON LOGOUT --
 windower.register_event('logout', function()
 	coroutine.sleep(3)

@@ -51,6 +51,7 @@ keyboard.parsed_keybinds = {}
 function keyboard:parse_keybinds()
 	for row_key,row_value in pairs(keyboard.hotbar_rows) do
 		for col_key,col_value in pairs(row_value) do
+			if col_value ~= '' then
 			col_value = string.lower(col_value)
 			col_value = string.gsub(col_value, " ", "")
 			col_list = string.split(col_value, "+")
@@ -76,6 +77,7 @@ function keyboard:parse_keybinds()
 				end
 			end
 			row_value[col_key] = col_value
+			end
 		end
 		keyboard.hotbar_rows[row_key] = row_value
 	end
@@ -85,8 +87,9 @@ end
 function keyboard:bind_keys(rows, columns)
     for r = 1, rows do 
         for s = 1, columns do
-            if (self.hotbar_rows[r] ~= nil and self.hotbar_rows[r][s] ~= nil) then 
+            if (self.hotbar_rows[r] ~= nil and self.hotbar_rows[r][s] ~= nil and self.hotbar_rows[r][s] ~= '') then 
     			windower.send_command('bind '..keyboard.hotbar_rows[r][s]..' htb execute '..r..' '..s)
+                self.keys_bound = true
             end
         end
     end
@@ -95,11 +98,36 @@ end
 function keyboard:unbind_keys(rows, columns)
     for r = 1, rows do 
         for s = 1, columns do
-            if (keyboard.hotbar_rows[r] ~= nil and keyboard.hotbar_rows[r][s] ~= nil) then 
+            if (keyboard.hotbar_rows[r] ~= nil and keyboard.hotbar_rows[r][s] ~= nil and keyboard.hotbar_rows[r][s] ~= '') then 
     			windower.send_command('unbind '..keyboard.hotbar_rows[r][s])
             end
         end
     end
+end
+
+--[[
+    Release every key in the keybind table.
+
+    Windower binds are global runtime state: they outlive the addon, so
+    anything left bound at unload keeps swallowing keypresses until Windower
+    itself restarts. This walks the whole table rather than a row/column
+    range so it works without theme settings, which may not exist if the
+    addon failed during setup.
+]]
+function keyboard:unbind_all()
+    if not self.keys_bound then return end
+
+    for row_key, row_value in pairs(self.hotbar_rows) do
+        if type(row_value) == 'table' then
+            for col_key, key in pairs(row_value) do
+                if key ~= nil and key ~= '' then
+                    windower.send_command('unbind '..key)
+                end
+            end
+        end
+    end
+
+    self.keys_bound = false
 end
 
 return keyboard

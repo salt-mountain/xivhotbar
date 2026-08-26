@@ -1096,7 +1096,11 @@ function ui:load_player_hotbar(player_hotbar, environment, player_vitals)
 
     for h=1,self.theme.hotbar_number,1 do
         for i=1, self.theme.columns, 1 do
-			load_action(self, h, i, player_hotbar[environment]['hotbar_' .. h]['slot_' .. i], player_vitals)
+            -- The environment table is absent when no actions loaded at all
+            -- (no job file, for instance). Draw empty slots rather than
+            -- indexing nil.
+            local hotbar_row = player_hotbar and player_hotbar[environment] and player_hotbar[environment]['hotbar_' .. h]
+            load_action(self, h, i, hotbar_row and hotbar_row['slot_' .. i] or nil, player_vitals)
         end
     end
   
@@ -1166,7 +1170,9 @@ end
 
 
 function ui:inner_check_recasts(player_hotbar, environment, player_vitals, row, slot)
-	local action = player_hotbar[environment]['hotbar_' .. row]['slot_' .. slot]
+	local hotbar_row = player_hotbar and player_hotbar[environment] and player_hotbar[environment]['hotbar_' .. row]
+	if hotbar_row == nil then return end
+	local action = hotbar_row['slot_' .. slot]
 	local is_disabled = check_disable(database, action)
     
     
@@ -1216,6 +1222,10 @@ end
 
 -- check action recasts
 function ui:check_recasts(player_hotbar, environment, player_vitals)
+    -- Nothing loaded (no job file, for instance): skip the sweep entirely
+    -- rather than probing every slot every frame.
+    if player_hotbar == nil or player_hotbar[environment] == nil then return end
+
     ui.recasts['ja'] = windower.ffxi.get_ability_recasts()
     ui.recasts['ma'] = windower.ffxi.get_spell_recasts()
     for h=1, self.theme.rows, 1 do
