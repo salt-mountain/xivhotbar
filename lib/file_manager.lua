@@ -99,8 +99,13 @@ function file_manager:ensure_hotbar_file(player_name, file_name, is_general)
         return false, 'could not create ' .. relative_path
     end
 
+    -- create_path only makes directories. Writing through the files library
+    -- would also emit its own "New file" notice, duplicating ours.
     local ok, err = pcall(function()
-        target:write(starter_body(player_name, file_name, is_general))
+        target:create_path()
+        local handle = assert(io.open(windower.addon_path .. relative_path, 'w'))
+        handle:write(starter_body(player_name, file_name, is_general))
+        handle:close()
     end)
 
     if not ok then

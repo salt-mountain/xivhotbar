@@ -247,6 +247,7 @@ local function print_help()
 	log("move: Enables moving the hotbars by dragging them, also writes the changes to settings.xml if used again.")
 	log("reload: Reloads the hotbar, if you have made changes to the hotbar-file, this is faster for loading.")
 	log("bench start|stop|report|reset: Frame-time measurement for development.")
+	log("dev [on|off]: Toggles extra logging, including pet packet details.")
 	log("Dependencies:")
 	log("shortcuts: Used for weapon skills.")
 end
@@ -295,6 +296,20 @@ windower.register_event('addon command', function(command, ...)
 			trigger_action(tonumber(args[2]))
         end
         bench.leave('keypress_execute')
+    elseif command == 'dev' then
+        local requested = args[1] and args[1]:lower()
+        if requested == 'on' then
+            settings.Dev.DevMode = true
+        elseif requested == 'off' then
+            settings.Dev.DevMode = false
+        else
+            settings.Dev.DevMode = not settings.Dev.DevMode
+        end
+        config.save(settings)
+        -- ui.theme is the same table as theme_options, so this takes effect
+        -- immediately for the dev_mode checks throughout the addon.
+        theme_options.dev_mode = settings.Dev.DevMode
+        log('dev logging ' .. (settings.Dev.DevMode and 'on' or 'off'))
     elseif command == 'bench' then
         local sub = args[1] and args[1]:lower() or 'report'
         if sub == 'start' then
@@ -800,6 +815,10 @@ end
 windower.register_event('incoming chunk', function(id,original,modified,injected,blocked)
 	if state.ready == true then
 		local packet = packets.parse('incoming', original)
+		if ui.theme.dev_mode and id == 0x068 and packet['Owner ID'] == windower.ffxi.get_player().id then
+			log(string.format("pet packet: name '%s', index %s",
+				tostring(packet['Pet Name']), tostring(packet['Pet Index'])))
+		end
 		if id == 0x068 and no_pet == true then -- If the second pet update packet comes in
 			if packet['Owner ID'] == windower.ffxi.get_player().id then -- If player.id and pet owner ID are the same
 				if packet['Pet Index'] ~= 0 then -- If the pet has an index of non zero then pet summoned succesfully
