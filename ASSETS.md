@@ -48,3 +48,10 @@ from, and how it is handled.
 `weapon_skills.lua` are generated copies of the Windower project's
 `resources` library, © 2013-2022 Windower, BSD-3-Clause. Each file retains
 the Windower license notice.
+
+`priv_res/spell_descriptions.lua` and `priv_res/ability_descriptions.lua`
+hold the game's own help text for spells and abilities, extracted from the
+client. That text is Square Enix material in the same category as the icons
+above: included for a non-commercial fan addon, with no rights claimed. They
+were added to the lineage by Akirane in 2020 and carry no license notice of
+their own.

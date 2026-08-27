@@ -420,24 +420,34 @@ function action_req_check(action_array)
     end
 
 end
+-- Values above 99 in a spell's levels table are job point gift thresholds,
+-- not character levels. Job points are only earned at 99, and whether the
+-- gift is unlocked is settled by the learned check.
+local function meets_level_requirement(required, level)
+    if required > 99 then return level >= 99 end
+    return level >= required
+end
+
 function check_spell_level(spell_name_en)
+    local player = windower.ffxi.get_player()
+
     for key,val in pairs(spells) do
         if spells[key]['en'] == spell_name_en then
-            if spells[key]['levels'][windower.ffxi.get_player().main_job_id] == nil then  -- Check to see if current main job even has a level associated with spell
-                if windower.ffxi.get_player().sub_job_level == nil or spells[key]['levels'][windower.ffxi.get_player().sub_job_id] == nil then -- Otherwise check to see if current sub job even has a level associated with spell
-                    return false
-                elseif windower.ffxi.get_player().sub_job_level < spells[key]['levels'][windower.ffxi.get_player().sub_job_id] then -- Check to see if sub job level is lower than spell level
-                    return false
-                else
-                    return true
-                end
-            elseif windower.ffxi.get_player().main_job_level < spells[key]['levels'][windower.ffxi.get_player().main_job_id] then -- Check to see if main job level is lower than spell level
-                return false
-            else
-                return true
+            local main_required = spells[key]['levels'][player.main_job_id]
+            if main_required ~= nil then
+                return meets_level_requirement(main_required, player.main_job_level)
             end
+
+            local sub_required = spells[key]['levels'][player.sub_job_id]
+            if player.sub_job_level == nil or sub_required == nil then
+                return false
+            end
+            -- Job point gifts do not apply to a subjob.
+            return sub_required <= 99 and player.sub_job_level >= sub_required
         end
     end
+
+    return false
 end
 
 function check_if_spell_learned(spell_name_en)
@@ -759,7 +769,9 @@ function action_manager:load(player)
     local job_file = loadfile(basepath .. player.main_job .. '.lua')
     local general_file = loadfile(basepath .. 'General.lua')
     if job_file == nil then 
-        print(string.format("XIVHotbar: Couldn't find the job file %s.lua!", player.main_job))
+        log(string.format("couldn't load %s.lua. Check it for syntax errors.", player.main_job))
+        self.setup_failed = true
+        return
     else
    
     setfenv(job_file, _job_fileG) --Set a function's (JOB.lua) enviroment(global) into a table(_job_fileG)

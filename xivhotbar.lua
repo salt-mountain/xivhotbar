@@ -119,14 +119,7 @@ function initialize()
 	ui:update_tp(current_tp)
     player:initialize(windower_player, server, theme_options)
     player:load_hotbar()
-    -- Don't claim the user's keys if we have no hotbar data to act on: a
-    -- bound key whose action never loads is a key the game no longer sees.
-    if action_manager.setup_failed then
-        log('no hotbar data loaded, leaving keybinds alone.')
-        windower.console.write('XIVHotbar: no hotbar data loaded, leaving keybinds alone.')
-    else
-        keyboard:bind_keys(theme_options.rows, theme_options.columns)
-    end
+    sync_keybinds(true)
     ui:load_player_hotbar(player:get_hotbar_info())
     ui.hotbar.ready = true
     ui.hotbar.initialized = true
@@ -158,6 +151,27 @@ function set_battle_environment(in_battle)
 end
 
 
+-- Claim keys only while there are actions behind them. A key bound to a
+-- hotbar that failed to load is a key the game never sees again. Called after
+-- every hotbar load, so a failed job change releases keys and a later
+-- successful one takes them back.
+function sync_keybinds(force)
+    local should_bind = not action_manager.setup_failed
+    local is_bound = keyboard.bound_keys ~= nil
+
+    if should_bind == is_bound and not force then return end
+
+    keyboard:unbind_all()
+
+    if should_bind then
+        keyboard:bind_keys(theme_options.rows, theme_options.columns)
+    else
+        log('no hotbar data loaded, keybinds released.')
+        windower.console.write('XIVHotbar: no hotbar data loaded, keybinds released.')
+    end
+end
+
+
 -- reload hotbar --
 function reload_hotbar()
 	
@@ -175,6 +189,7 @@ function reload_hotbar()
 		player:update_level(windower.ffxi.get_player().main_job_level,windower.ffxi.get_player().sub_job_level)
 	end
 	player:load_hotbar()
+	sync_keybinds()
    	ui:load_player_hotbar(player:get_hotbar_info())
 	
 end
@@ -447,6 +462,7 @@ windower.register_event('prerender',function()
         return
     end
 
+    bench.frame()
     bench.enter('prerender')
 
     if ui.feedback.is_active then

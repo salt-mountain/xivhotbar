@@ -1,5 +1,6 @@
 --[[
         Copyright © 2020, SirEdeonX, Akirane, Technyze
+        Copyright © 2026, salt-mountain
         All rights reserved.
 
         Redistribution and use in source and binary forms, with or without

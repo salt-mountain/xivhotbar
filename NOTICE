@@ -11,15 +11,16 @@ code of this addon.
    the repository level; it does not replace or alter any per-file notice.
 
 2. Windower resources data. The files priv_res/spells.lua, priv_res/jobs.lua,
-   priv_res/job_abilities.lua, priv_res/weapon_skills.lua, and
-   priv_res/horizon_spells.lua are generated copies of the Windower
-   project's "resources" library, Copyright © 2013-2022, Windower, under
-   the Windower project's BSD 3-Clause license. Each of those files retains
-   the Windower license notice within it.
+   priv_res/job_abilities.lua, and priv_res/weapon_skills.lua are generated
+   copies of the Windower project's "resources" library, Copyright © 2013-2022,
+   Windower, under the Windower project's BSD 3-Clause license. Each of those
+   files retains the Windower license notice within it.
 
 3. Game assets. The image files under images/ include icons derived from
-   FINAL FANTASY XI and FINAL FANTASY XIV, which are the intellectual
-   property of Square Enix Holdings Co., Ltd. Those assets are NOT covered
-   by the LICENSE file and no rights over them are claimed by the authors.
-   See ASSETS.md for the inventory. This addon is a non-commercial fan
-   project and is not affiliated with or endorsed by Square Enix.
+   FINAL FANTASY XI and FINAL FANTASY XIV, and the description text in
+   priv_res/spell_descriptions.lua and priv_res/ability_descriptions.lua is
+   taken from the game's own help text. All of it is the intellectual
+   property of Square Enix Holdings Co., Ltd. None of it is covered by the
+   LICENSE file and no rights over it are claimed by the authors. See
+   ASSETS.md for the inventory. This addon is a non-commercial fan project
+   and is not affiliated with or endorsed by Square Enix.

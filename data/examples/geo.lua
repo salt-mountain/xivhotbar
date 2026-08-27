@@ -1,27 +1,17 @@
--- ============================================================================
--- GEO example layout — UNTESTED IN-GAME (static-data draft, 2026-08-24)
--- ============================================================================
--- Usage: copy to data/<YourCharacterName>/geo.lua and edit to taste.
+-- Example GEO layout. Copy to data/<YourCharacter>/GEO.lua and edit.
 --
--- Every spell name and level below was cross-checked against the addon's
--- bundled spell data (priv_res/spells.lua, GEO = job id 21). The addon
--- level-gates and learned-gates automatically, so listing a spell you can't
--- cast yet is safe — it shows once you can.
+-- Spell names and levels were checked against the bundled spell data. The
+-- addon gates by level and by whether you have learned the spell, so listing
+-- something you cannot cast yet is safe.
 --
--- Targeting model (important for GEO):
---   Indi- spells   -> 'me'    self-only aura, follows you
---   Geo- buffs     -> 'stpc'  select a party member; the luopan is planted
---                             AT THEM (use 'me' variant to drop it at your
---                             own feet instead)
---   Geo- debuffs   -> 'bt'    planted at your current battle target;
---                             'stnpc' variants let you click any mob
---   Entrust        -> 'me'    (JA; the follow-up Indi- goes on 'stpc')
+-- Targeting for Geomancy:
+--   Indi- spells   'me'     self-only aura that follows you
+--   Geo- buffs     'stpc'   luopan is planted at the party member you pick
+--   Geo- debuffs   'bt'     planted at your battle target ('stnpc' to click)
+--   Entrust        'me'     the follow-up Indi- goes on 'stpc'
 --
--- The ['Luopan'] stance block at the bottom requires the buff_table entry
--- [1014] = 'Luopan' in lib/action_manager.lua (backlog B4) and in-game
--- confirmation that the 0x068 pet packet names the pet "Luopan".
--- Until then that block is simply never activated — harmless.
--- ============================================================================
+-- The ['Luopan'] block needs a Luopan entry in buff_table before it does
+-- anything; until then it is simply never activated.
 
 xivhotbar_keybinds_job['Base'] = {
 

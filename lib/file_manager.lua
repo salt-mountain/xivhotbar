@@ -43,14 +43,14 @@ local current_general_file_path = ""
 local function starter_body(player_name, file_name, is_general)
     local notes =
         '-- ' .. file_name .. ' for ' .. player_name .. '\n' ..
-        '-- Created automatically. This file is yours to edit; the addon will\n' ..
-        '-- never overwrite it. See data/examples/ for fuller layouts.\n' ..
+        '-- Created because it did not exist yet. Nothing here is overwritten\n' ..
+        '-- on load, though //htb set, //htb add and //htb delete rewrite it.\n' ..
+        '-- See data/examples/ for fuller layouts.\n' ..
         '--\n' ..
         '-- Each line is one slot:\n' ..
         "--   {'environment hotbar slot', 'type', 'action', 'target', 'label', 'icon'}\n" ..
         '--\n' ..
-        "--   type: ma (magic), ja (ability), ws (weaponskill), input (any game\n" ..
-        "--         command), macro (semicolon-separated steps), gs (GearSwap)\n" ..
+        "--   type: ma, ja, ws, ct, pet, input, macro, gs\n" ..
         "--   target: me, t, bt, stpc, stnpc, or blank\n" ..
         '--\n'
 
@@ -104,11 +104,16 @@ function file_manager:ensure_hotbar_file(player_name, file_name, is_general)
     local ok, err = pcall(function()
         target:create_path()
         local handle = assert(io.open(windower.addon_path .. relative_path, 'w'))
-        handle:write(starter_body(player_name, file_name, is_general))
-        handle:close()
+        local written, write_err = handle:write(starter_body(player_name, file_name, is_general))
+        local closed, close_err = handle:close()
+        assert(written, write_err)
+        assert(closed, close_err)
     end)
 
     if not ok then
+        -- A partial file would be treated as existing on the next load, so
+        -- remove it rather than leaving something unusable behind.
+        os.remove(windower.addon_path .. relative_path)
         return false, tostring(err)
     end
 

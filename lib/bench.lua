@@ -15,31 +15,21 @@
               from this software without specific prior written permission.
 
         THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-        ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED.
+        ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+        WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+        FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+        DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+        SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+        CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+        OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+        OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ]]
 
--- bench.lua — in-game micro-benchmark harness for hot paths.
---
--- Usage from the addon command handler:
---   //htb bench start [warmup_frames]   begin collecting (default warmup 120)
---   //htb bench stop                    stop collecting (keeps samples)
---   //htb bench report                  print distribution stats per label
---   //htb bench reset                   drop all samples
---
--- Instrumentation pattern (zero work when inactive beyond one boolean test):
---   bench.enter('label')
---   ... code under test ...
---   bench.leave('label')
---
--- Design notes:
--- * socket.gettime() (LuaSocket, ships with Windower) gives wall-clock time
---   at microsecond-ish resolution; os.clock() is the fallback (CPU time,
---   coarser, still sub-frame). os.time() is NOT usable (1 s resolution).
--- * Samples are buffered in memory and only formatted on `report` — no disk
---   or chat I/O per frame (observer effect).
--- * A warmup window (in enter/leave pairs of the FIRST label started after
---   `start`) is discarded so cache-population after load/zone doesn't skew
---   the distribution.
+-- Frame-time measurement for hot paths. //htb bench start|stop|report|reset.
+-- Wrap code with bench.enter('label') and bench.leave('label'); both are a
+-- single boolean test when inactive. Samples are buffered and only formatted
+-- on report, so measuring does not itself cost I/O.
 
 local bench = {}
 
@@ -57,18 +47,18 @@ end
 
 local samples = {}      -- label -> array of durations (seconds)
 local open = {}         -- label -> start timestamp
-local warmup_left = 0   -- frames (samples of the anchor label) to discard
+local warmup_left = 0   -- whole frames still to discard after start
+local warming = false   -- true while the current frame is inside that window
 local warmup_total = 0
-local anchor_label = nil -- first label seen after start; drives warmup count
 
 local FRAME_BUDGET_MS = 1000 / 60  -- 16.667 ms at 60 fps
 
 function bench.start(warmup_frames)
     samples = {}
     open = {}
-    anchor_label = nil
     warmup_total = tonumber(warmup_frames) or 120
     warmup_left = warmup_total
+    warming = true
     bench.active = true
     return warmup_total, bench.clock_source
 end
@@ -81,13 +71,25 @@ end
 function bench.reset()
     samples = {}
     open = {}
-    anchor_label = nil
     warmup_left = 0
+    warming = false
 end
 
 function bench.enter(label)
     if not bench.active then return end
     open[label] = now()
+end
+
+-- Called once per frame by the outermost instrumented handler, so the warmup
+-- window is whole frames rather than ending partway through one.
+function bench.frame()
+    if not bench.active then return end
+    if warmup_left > 0 then
+        warmup_left = warmup_left - 1
+        warming = true
+    else
+        warming = false
+    end
 end
 
 function bench.leave(label)
@@ -97,10 +99,8 @@ function bench.leave(label)
     local dt = now() - t0
     open[label] = nil
 
-    if anchor_label == nil then anchor_label = label end
-    if warmup_left > 0 then
-        if label == anchor_label then warmup_left = warmup_left - 1 end
-        return -- discard warmup samples for ALL labels during the window
+    if warming then
+        return -- discard the whole frame's samples
     end
 
     local s = samples[label]

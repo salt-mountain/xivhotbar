@@ -85,11 +85,13 @@ end
 
 -- bind keys --
 function keyboard:bind_keys(rows, columns)
+    self.bound_keys = {}
     for r = 1, rows do 
         for s = 1, columns do
-            if (self.hotbar_rows[r] ~= nil and self.hotbar_rows[r][s] ~= nil and self.hotbar_rows[r][s] ~= '') then 
-    			windower.send_command('bind '..keyboard.hotbar_rows[r][s]..' htb execute '..r..' '..s)
-                self.keys_bound = true
+            local key = self.hotbar_rows[r] and self.hotbar_rows[r][s]
+            if (key ~= nil and key ~= '') then 
+    			windower.send_command('bind '..key..' htb execute '..r..' '..s)
+                table.insert(self.bound_keys, key)
             end
         end
     end
@@ -106,28 +108,19 @@ function keyboard:unbind_keys(rows, columns)
 end
 
 --[[
-    Release every key in the keybind table.
-
-    Windower binds are global runtime state: they outlive the addon, so
-    anything left bound at unload keeps swallowing keypresses until Windower
-    itself restarts. This walks the whole table rather than a row/column
-    range so it works without theme settings, which may not exist if the
-    addon failed during setup.
+    Release only the keys this addon bound. Windower binds are global runtime
+    state and outlive the addon, so anything left bound keeps swallowing
+    keypresses until Windower restarts. Unbinding by keybind table instead
+    would release keys we never claimed, including another addon's.
 ]]
 function keyboard:unbind_all()
-    if not self.keys_bound then return end
+    if self.bound_keys == nil then return end
 
-    for row_key, row_value in pairs(self.hotbar_rows) do
-        if type(row_value) == 'table' then
-            for col_key, key in pairs(row_value) do
-                if key ~= nil and key ~= '' then
-                    windower.send_command('unbind '..key)
-                end
-            end
-        end
+    for _, key in ipairs(self.bound_keys) do
+        windower.send_command('unbind '..key)
     end
 
-    self.keys_bound = false
+    self.bound_keys = nil
 end
 
 return keyboard
