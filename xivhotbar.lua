@@ -100,15 +100,17 @@ function initialize()
 	local inventory = windower.ffxi.get_items()
 	local equipment = inventory['equipment']
 	if theme_options.enable_weapon_switching == true then
-		inv_index = windower.ffxi.get_items().equipment.main
-		--skill_type = resources.items[windower.ffxi.get_items(0, inv_index).id].skill 
-		if windower.ffxi.get_player().main_job == 'RNG' then
-			inv_index = windower.ffxi.get_items().equipment.range
-			
-			if windower.ffxi.get_items().equipment.range == 0 then
-				inv_index = windower.ffxi.get_items().equipment.main
-			end
-			skill_type = resources.items[windower.ffxi.get_items(0, inv_index).id].skill
+		local slot_index = equipment.main
+		local slot_bag = equipment.main_bag
+		if windower.ffxi.get_player().main_job == 'RNG' and equipment.range ~= 0 then
+			slot_index = equipment.range
+			slot_bag = equipment.range_bag
+		end
+		local skill_type = nil
+		if slot_index ~= 0 then
+			local item = windower.ffxi.get_items(slot_bag, slot_index)
+			local item_res = item and resources.items[item.id]
+			skill_type = item_res and item_res.skill
 		end
 		player:update_weapon_type(skill_type)
 	end
@@ -560,14 +562,16 @@ windower.register_event('login', function()
 		ui.hotbar.hide_hotbars = true
 		ui:hide()
 		coroutine.sleep(6)
-		inv_index = windower.ffxi.get_items().equipment.main
-		if windower.ffxi.get_player().main_job == 'RNG' then
-			inv_index = windower.ffxi.get_items().equipment.range
-			if windower.ffxi.get_items().equipment.range == 0 then
-				inv_index = windower.ffxi.get_items().equipment.main
-			end
+		local equipment = windower.ffxi.get_items().equipment
+		local slot_index = equipment.main
+		local slot_bag = equipment.main_bag
+		if windower.ffxi.get_player().main_job == 'RNG' and equipment.range ~= 0 then
+			slot_index = equipment.range
+			slot_bag = equipment.range_bag
 		end
-		get_weapon_type(0,inv_index)
+		if slot_index ~= 0 then
+			get_weapon_type(slot_bag, slot_index)
+		end
 		reload_hotbar()
 		ui.hotbar.hide_hotbars = false
 	
@@ -670,7 +674,9 @@ function get_weapon_type(bag,index)
 		coroutine.sleep(6)
 	end
 
-	new_skill_type = resources.items[windower.ffxi.get_items(bag, index).id].skill 
+	local item = windower.ffxi.get_items(bag, index)
+	local item_res = item and resources.items[item.id]
+	new_skill_type = item_res and item_res.skill
 	if theme_options.enable_weapon_switching == true then
 		if new_skill_type ~= nil then 
 			player:update_weapon_type(new_skill_type)
