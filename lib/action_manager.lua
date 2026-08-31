@@ -66,6 +66,8 @@ buff_table = {
 	[1011] = 'Odin',
 	[1012] = 'Titan',
 	[1013] = 'Atomos',
+	-- Geomancer luopan; the 0x068 pet packet names it 'Luopan'
+	[1014] = 'Luopan',
     
 }
 

@@ -809,6 +809,7 @@ windower.register_event('incoming chunk', function(id,original,modified,injected
 				if packet['Pet Index'] == 0 then -- If there is no pet. Meaning it died or was released.
 					if ui.theme.dev_mode then log("Pet Died or was Released. Reloading Hotbar.") end
 					pet_dead_update = false
+					action_manager:update_stance(0) -- no pet, no stance bar
 				    reload_hotbar()
 				end
 			end
