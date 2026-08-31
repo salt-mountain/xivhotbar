@@ -1118,8 +1118,6 @@ function ui:update_tp(current_tp)
 end
 
 local function check_disable(database, action)
-    local current_mp = windower.ffxi.get_player().vitals.mp
-
 	if action ~= nil and is_neutralized == true then 
         ui.disabled_slots.actions[action.action] = true
 		return true
@@ -1131,14 +1129,14 @@ local function check_disable(database, action)
             elseif is_silenced == true then
                 ui.disabled_slots.actions[action.action] = true
                 return true
-            elseif current_mp < database[action.type][(action.action):lower()].mpcost then
+            end
+            -- current_mp is kept up to date by the mp change event
+            local skill = database[action.type][(action.action):lower()]
+            if skill ~= nil and current_mp < skill.mpcost then
                 ui.disabled_slots.no_vitals[action.action] = true
                 return true
-            elseif current_mp >= database[action.type][(action.action):lower()].mpcost then
-                ui.disabled_slots.no_vitals[action.action] = false
-                return false     
             else
-                ui.disabled_slots.actions[action.action] = false
+                ui.disabled_slots.no_vitals[action.action] = false
                 return false
             end
 		end
@@ -1166,6 +1164,8 @@ end
 
 
 
+local recast_action_types = S{'ma','ja','ws','pet'}
+
 function ui:inner_check_recasts(player_hotbar, environment, player_vitals, row, slot)
 	local hotbar_row = player_hotbar and player_hotbar[environment] and player_hotbar[environment]['hotbar_' .. row]
 	if hotbar_row == nil then return end
@@ -1178,7 +1178,7 @@ function ui:inner_check_recasts(player_hotbar, environment, player_vitals, row, 
 	local is_disabled = check_disable(database, action)
 
     -- Cooldown Check - Enable/Disable Slot - Hide/Show Recasts --
-    if (S{'ma','ja','ws','pet'}:contains(action.type)) then
+    if recast_action_types:contains(action.type) then
 		local skill = nil
 		local action_recasts = nil
 		local in_cooldown = false

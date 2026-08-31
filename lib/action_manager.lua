@@ -43,6 +43,7 @@ local job_ability_actions = {}
 local weaponskill_actions = {}
 local current_stance = nil
 local learned_spells_name = {}
+local learned_spells_set = {}
 local learned_ws_id = {}
 local learned_abilities_id = {}
 not_learned_spells = {}
@@ -453,14 +454,7 @@ function check_spell_level(spell_name_en)
 end
 
 function check_if_spell_learned(spell_name_en)
-    for k,v in pairs(learned_spells_name) do
-        if v == spell_name_en then
-            --These are spells that player meets level and learned requirement
-            return true
-        end
-    end
-
-    return false
+    return learned_spells_set[spell_name_en] == true
 end
 
 
@@ -496,6 +490,7 @@ local function parse_binds(theme_options, player, hotbar)
     
     learned_abilities_id = {}
     learned_spells_name = {}
+    learned_spells_set = {}
     learned_ws_id = {}
     missing_actions = {}
 
@@ -503,7 +498,8 @@ local function parse_binds(theme_options, player, hotbar)
     spells = spell_list
     for key,val in pairs(spell_list) do
         if windower.ffxi.get_spells()[spells[key]['id']] == true then 
-            table.insert(learned_spells_name,spells[key]['en']) 
+            table.insert(learned_spells_name,spells[key]['en'])
+            learned_spells_set[spells[key]['en']] = true
         end
     end
     
