@@ -532,13 +532,6 @@ local function clear_recast(ui, r, s)
     ui.hotbars[r].slot_recast_texts[s]:text('')
 end
 
--- clear recast from a slot
-local function hide_recast(ui, r, s)
-    ui.hotbars[r].slot_recasts[s]:hide()
-    ui.hotbars[r].slot_keys[s]:hide()
-    ui.hotbars[r].slot_recast_texts[s]:text('')  
-end
-
 local function show_recast(ui, r, s, recast_time)
     ui.hotbars[r].slot_recasts[s]:show()
     ui.hotbars[r].slot_recast_texts[s]:text(recast_time) 
@@ -833,6 +826,9 @@ local function load_action(ui, row, slot, action, player_vitals)
 
     -- if slot is empty, leave it cleared
     if action == nil then
+        -- Settle recast state here: the per-frame sweep skips empty slots.
+        ui.hotbars[row].slot_recasts[slot]:hide()
+        ui.hotbars[row].slot_recast_texts[slot]:text('')
         if ui.theme.hide_empty_slots == true then
             ui.hotbars[row].slot_backgrounds[slot]:hide()
             ui.hotbars[row].slot_keys[slot]:hide()
@@ -1174,19 +1170,15 @@ function ui:inner_check_recasts(player_hotbar, environment, player_vitals, row, 
 	local hotbar_row = player_hotbar and player_hotbar[environment] and player_hotbar[environment]['hotbar_' .. row]
 	if hotbar_row == nil then return end
 	local action = hotbar_row['slot_' .. slot]
-	local is_disabled = check_disable(database, action)
-    
-    
 
-    -- Disable Check --
-    if action == nil then
-        clear_recast(self, row, slot) 
-		if self.theme.hide_empty_slots == true then
-		    hide_recast(self, row, slot)
-        end
-        return
+	-- Empty slots are settled once by load_action. Touching their text and
+	-- image primitives every frame is wasted work and makes them flicker.
+	if action == nil then return end
+
+	local is_disabled = check_disable(database, action)
+
     -- Cooldown Check - Enable/Disable Slot - Hide/Show Recasts --
-    elseif (S{'ma','ja','ws','pet'}:contains(action.type)) and action ~= nil then
+    if (S{'ma','ja','ws','pet'}:contains(action.type)) then
 		local skill = nil
 		local action_recasts = nil
 		local in_cooldown = false
