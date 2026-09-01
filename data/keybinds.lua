@@ -6,17 +6,18 @@
     A slot with no key (or an empty string) simply isn't bound.
 
     Two rows are bound by default. They deliberately avoid:
-      - letter keys, which FFXI uses for movement
-      - the - and = keys, which FFXI uses for menus
+      - letter keys, which can be used for movement depending on keyboard layout
+      - the - and = keys, used for menus
       - CTRL+number and ALT+number, which are FFXI's two macro banks
 
-    Uncomment the example rows below to bind more. Note that the number of
-    rows actually bound is also limited by Hotbar/Style/HotbarCount in
-    data/settings.xml, so raise that too if you add rows.
+    Uncomment the example rows below to bind more.
+    **NOTE**: The number of rows actually bound is also limited by
+    Hotbar/Style/HotbarCount in data/settings.xml, so raise that too
+    if you add rows.
 
     Slots can hold more than spells and abilities: a slot can run any game
     command, a multi-step macro with waits, a GearSwap command, or another
-    addon's command. See the README for the job-file action format.
+    addon's command. See data/examples/General.lua for examples.
 
     Editing note: entries are positional. If you remove a key from the
     middle of a row, every key after it shifts up one slot. To leave a slot

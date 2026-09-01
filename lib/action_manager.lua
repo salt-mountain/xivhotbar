@@ -214,17 +214,16 @@ end
 local function add_action(am, action, environment, hotbar, slot)
     status = true
     if environment == 'b' then environment = 'battle' elseif environment == 'f' then environment = 'field' end
-    --if slot == 10 then slot = 0 end
 
     if am.hotbar[environment] == nil then
-        windower.console.write('XIVHOTBAR: invalid hotbar (environment)')
+        windower.console.write('XIVHotbar: invalid hotbar (environment)')
         status = false
     end
 
     if (tonumber(hotbar) > am.hotbar_rows) then 
         status = false
     elseif am.hotbar[environment]['hotbar_' .. hotbar] == nil then
-        windower.console.write('XIVHOTBAR: invalid hotbar (hotbar number)')
+        windower.console.write('XIVHotbar: invalid hotbar (hotbar number)')
         status = false
     end
     if status == true then
@@ -287,14 +286,6 @@ function action_req_check(action_array)
     local slot_key = T(action_array[1]:split(' '))
     row = tonumber(slot_key[2])
     col = tonumber(slot_key[3])
-    
-   
-    -- print("-----------------------")
-    -- for k,v in pairs(tier_list) do
-    --     print(v)
-    -- end
-    -- print("-----------------------")
-   
     
     if action_array[2] == 'ma' then
         -- Note: create function validate_ma to do the below code in a more organized manner
@@ -641,7 +632,7 @@ function action_manager:swap_actions(player, swap_table)
 				file_manager:write_changes(dest_action, d_row, d_slot, s_row, s_slot, 'f')
 			end
 		else
-			print("XIVHOTBAR: Cannot swap icons if the dragged icon is empty!")
+			print("XIVHotbar: Cannot swap icons if the dragged icon is empty!")
 		end
     end
 end

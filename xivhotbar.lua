@@ -208,20 +208,6 @@ function set_action_command(args)
     reload_hotbar()
 end
 
-function flush_old_keybinds()
-    for i=1,ui.hotbar.rows,1 do
-        for j=1,ui.hotbar.columns,1 do
-            windower.send_command('htb delete f '..i..' '..j)
-        end
-    end
-    for i=1,ui.hotbar.rows,1 do
-        for j=1,ui.hotbar.columns,1 do
-            windower.send_command('htb delete battle '..i..' '..j)
-        end
-    end
-end
-
-
 -----------------
 -- Bind Events --
 -----------------
@@ -255,10 +241,14 @@ end
 
 local function print_help()
 	log("Commands:")
-	log("move: Enables moving the hotbars by dragging them, also writes the changes to settings.xml if used again.")
-	log("reload: Reloads the hotbar, if you have made changes to the hotbar-file, this is faster for loading.")
+	log("move: Drag the hotbars to reposition them. Run again to save to settings.xml.")
+	log("set <m|s|g> <hotbar> <slot> <type> <action> [target] [label] [icon]: Write an action into the current job file.")
+	log("reload: Reload the hotbar after editing a job file by hand.")
+	log("mount [name]: Mount, or dismount if already mounted. Defaults to crab.")
+	log("summon <avatar>: Summon and load that avatar's stance bar.")
+	log("release: Release your pet.")
+	log("dev [on|off]: Toggle extra logging, including pet packet details.")
 	log("bench start|stop|report|reset: Frame-time measurement for development.")
-	log("dev [on|off]: Toggles extra logging, including pet packet details.")
 	log("Dependencies:")
 	log("shortcuts: Used for weapon skills.")
 end
@@ -333,15 +323,6 @@ windower.register_event('addon command', function(command, ...)
         else
             for _, line in ipairs(bench.report_lines()) do log(line) end
         end
-    elseif command == 'reload' then
-		print("Reload 2") 
-        flush_old_keybinds()
-        bind_keys()
-        player:load_hotbar()
-	elseif command == 'add' then
-		player:insert_action(args)
-	elseif command == 'zoneid' then
-		print(windower.ffxi.get_info().zone)
 	elseif command == 'move' then
 		state.demo = not state.demo
 		if state.demo then
@@ -349,7 +330,7 @@ windower.register_event('addon command', function(command, ...)
 			log("Click, then drag an action onto another slot to change its location.")
 			log("Click between the rows, then drag to move the hotbars.")
 			log("To save the changes, type '//htb move' then hit enter.")
-            print('XIVHOTBAR2: Layout mode enabled')
+            print('XIVHotbar: Layout mode enabled')
 			box:enable()
 		else
 			save_hotbar(settings.Hotbar.Offsets.First, 1)
@@ -360,7 +341,7 @@ windower.register_event('addon command', function(command, ...)
 			save_hotbar(settings.Hotbar.Offsets.Sixth, 6)
 
 			config.save(settings)
-            print('XIVHOTBAR2: Layout mode disabled, writing new positions to settings.xml.')
+            print('XIVHotbar: Layout mode disabled, writing new positions to settings.xml.')
 			box:disable()
 		end
     end
@@ -625,10 +606,6 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 		if slot == 0 or (slot == 2 and on_rng) then
 			local inv_index = packet['Inventory Index']
 			local inv_bag = packet['Inventory Bag']
-			-- print("Inv Index: ", inv_index)
-			-- print("Inv Bag: ", inv_bag)
-			-- coroutine.sleep(6)
-			-- print(resources.items[windower.ffxi.get_items(inv_bag, inv_index).id].skill)
 			if inv_index ~= 0 then
 				if windower.ffxi.get_player().main_job == 'RNG' then
 					inv_index = windower.ffxi.get_items().equipment.range
@@ -640,7 +617,6 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 				
 				return
 			elseif inv_index == 0 then
-				-- print(resources.items[windower.ffxi.get_items(bag, index).id].skill)
 				if windower.ffxi.get_player().main_job == 'RNG' then
 					inv_index = windower.ffxi.get_items().equipment.range
 					if windower.ffxi.get_items().equipment.range == 0 then
@@ -770,7 +746,6 @@ windower.register_event('incoming chunk', function(id,original,modified,injected
 	elseif mob_killed and id == 0x061 then -- Mob Killed and Char Stats Message
 		
 		local packet = packets.parse('incoming', original)
-		--print("Packet: ", packet)
 		new_level = packet['Main Job Level']
 		
 		S{'ws'}:contains('ws')
@@ -790,14 +765,6 @@ end)
 
 
 ----------------------------- PET EVENT STUFF ----------------------------------------------------
-
-function reload_stance_hotbar()
-	player:update_job(resources.jobs[windower.ffxi.get_player().main_job_id].ens, resources.jobs[windower.ffxi.get_player().sub_job_id].ens)
-	player:update_level(windower.ffxi.get_player().main_job_level,windower.ffxi.get_player().sub_job_level)
-	player:load_hotbar()
-   	ui:load_player_hotbar(player:get_hotbar_info())
-end
-
 --This event is reloading hotbar if a pet dies or released
 windower.register_event('incoming chunk', function(id,original,modified,injected,blocked)
 	
@@ -842,8 +809,6 @@ windower.register_event('incoming chunk', function(id,original,modified,injected
 					no_pet = false
 				end
 			end
-			--no_pet = false
-			--return
 		elseif packet['Pet Index'] == 0 then
 			no_pet = true
 		end

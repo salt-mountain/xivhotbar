@@ -57,7 +57,6 @@ function keyboard:parse_keybinds()
 			col_list = string.split(col_value, "+")
 			if #col_list ~= 1 then
 				for string_value in ipairs(col_list) do
-					--print("string_value: " ..col_list[string_value])
 					if (col_list[string_value] ~= "number") then
 						if(col_list[string_value]:contains("ctrl")) then
 							col_list[string_value] = "^"

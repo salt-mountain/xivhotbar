@@ -134,7 +134,6 @@ end
 
 local function find_in_file_remove(file_path, action, row, slot, environment)
 
-	log(string.format("Removing row %d, slot %d", row, slot))
 	local testAc = action.action:lower()
 	local row_to_find = string.format('%s %d %d', environment, row, slot)
 	local found_row = false
@@ -149,10 +148,6 @@ local function find_in_file_remove(file_path, action, row, slot, environment)
 			if (val:contains(row_to_find)) then
 				if (val:lower():contains(testAc)) then
 					found_row = true
-					if (debug == true) then
-						print("[file_manager:find_in_file_remove] val:lower():contains(testAc) succeeded")
-						print(val)
-					end
 					fileContent[key] = '0'
 					break
 				elseif (val:contains("'gs'")) then
@@ -162,10 +157,6 @@ local function find_in_file_remove(file_path, action, row, slot, environment)
 					local sub_row = string.sub(stripped_row, i+3, j-3)
 					local sub_ac = string.sub(testAc, k+2, l-2)
 					if sub_row == sub_ac then
-						if (debug == true) then
-							print("[file_manager:find_in_file_remove] sub_row == sub_ac succeeded")
-							print(val)
-						end
 						found_row = true
 						fileContent[key] = '0'
 						break
@@ -207,16 +198,10 @@ local function write_swap(file_location, action, d_row, d_slot, s_row, s_slot, e
 				if (val:lower():contains(testAc)) then
 					found_row = true
 					val = string.gsub(val, "%w %d %d+", new_row)
-					if (debug == true) then
-						print("val:lower():contains(testAc) succeeded")
-						print(val)
-					end
 					fileContent[key] = val
 					break
 				elseif string.find(val, "'%f[%a]gs%f[%A]'") and string.find(val, 'equip') then
 					local stripped_row = val:lower()
-					print("This is a gearswap row.")
-					print(val)
 					i, j = string.find(stripped_row, '%[.*%]')
 					k, l = string.find(testAc, '%[.*%]')
 					local sub_row = string.sub(stripped_row, i+3, j-3)
@@ -224,10 +209,6 @@ local function write_swap(file_location, action, d_row, d_slot, s_row, s_slot, e
 					if sub_row == sub_ac then
 						found_row = true
 						val = string.gsub(val, "%w %d %d+", new_row)
-						if (debug == true) then
-							print("sub_row == sub_ac succeeded")
-							print(val)
-						end
 						fileContent[key] = val
 						break
 					end
@@ -266,21 +247,17 @@ local function find_in_file(file_content, action, environment, pattern)
 		for key, val in pairs(file_content) do
 			local i, j = string.find(val, pattern)
 			if (i ~= nil and j ~= nil) then
-				log("i ~= nil and j ~= nil")
 				found_pattern_start = true
 				pattern_start = key + 1
 			end
 			local k, l = string.find(val, '^}')
 			if (k ~= nil and l ~= nil and found_pattern_start == true) then
-				log("k ~= nil and l ~= nil and found_main_job_start == true")
-				log(val)
 				pattern_end = key -1
 				found_pattern_end = true 
 				break
 			end
 		end
 		if (found_pattern_end == true) then
-			log("found_pattern_end==true")
 			for i = pattern_start,pattern_end do
 				local k, j = string.find(file_content[i], '\'')
 				if (k ~= nil and j ~= nil) then
@@ -294,7 +271,6 @@ local function find_in_file(file_content, action, environment, pattern)
 			end
 			if (found_in_section == false) then
 				new_row = "\t{'" .. environment .. "', '" .. action.type .. "', '" .. action.action .. "', '" .. action.target .. "', '" .. action.alias .. "'},"
-				log(string.format("Writing new: %s" ,new_row))
 				table.insert(file_content, pattern_end+1, new_row)
 			end
 		end
@@ -335,7 +311,6 @@ function file_manager:insert_action(action, prio, player_subjob, environment, ro
 			found = find_in_file(fileContent, action, row_to_find, 'xivhotbar_keybinds_general%[\'Root\'%]')
 		end
 		if (found == false) then
-			log("found==false")
 			write_to_file(file_to_open, fileContent)
 		end
 	end
