@@ -242,7 +242,7 @@ end
 local function print_help()
 	log("Commands:")
 	log("move: Drag the hotbars to reposition them. Run again to save to settings.xml.")
-	log("set <m|s|g> <hotbar> <slot> <type> <action> [target] [label] [icon]: Write an action into the current job file.")
+	log("set <m|s|g> <hotbar> <slot> <type> <action> <target> [label] [icon]: Write an action into your job file. m = main job, s = subjob, g = general (all jobs). Lands on the page you are viewing.")
 	log("reload: Reload the hotbar after editing a job file by hand.")
 	log("mount [name]: Mount, or dismount if already mounted. Defaults to crab.")
 	log("summon <avatar>: Summon and load that avatar's stance bar.")

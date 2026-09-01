@@ -657,7 +657,8 @@ end
 
 function action_manager:insert_action(player_subjob, args)
     if not args[6] then
-        print('XIVHotbar: Invalid arguments: set <mode> <hotbar> <slot> <action_type> <action> <target (optional)> <alias (optional)> <icon (optional)>')
+        log('set <m|s|g> <hotbar> <slot> <type> <action> <target> [label] [icon]')
+        log('m = main job, s = subjob, g = general (all jobs). The action lands on whichever page you are viewing.')
         return
     end
     local prio = args[1]:lower()
