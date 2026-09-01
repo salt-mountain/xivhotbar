@@ -810,6 +810,33 @@ end
 --     end
 -- end
 -- load action into a hotbar slot
+-- Not every action has an icon file. The client draws those spells with an
+-- orb tinted by element, so fall back to the matching element icon instead
+-- of a blank slot. Results are cached; file_exists is a disk hit.
+local icon_path_cache = {}
+
+function resolve_action_icon(icon_folder, skill)
+    local key = icon_folder .. '/' .. tostring(skill.icon)
+    local cached = icon_path_cache[key]
+    if cached ~= nil then return cached end
+
+    local relative = string.format('/images/icons/%s/%05d.png', icon_folder, skill.icon)
+    local path = windower.addon_path .. relative
+
+    if not windower.file_exists(path) and skill.element ~= nil then
+        local element = database:get_element_name(tonumber(skill.element))
+        if element ~= nil then
+            local element_path = windower.addon_path .. '/images/icons/elements/' .. element .. '.png'
+            if windower.file_exists(element_path) then
+                path = element_path
+            end
+        end
+    end
+
+    icon_path_cache[key] = path
+    return path
+end
+
 local function load_action(ui, row, slot, action, player_vitals)
 
 	local action_map = { ['ma'] = 'spells', ['ja'] = 'abilities', ['ws'] = 'weaponskills'}
@@ -887,7 +914,7 @@ local function load_action(ui, row, slot, action, player_vitals)
 			local slot_image = nil
 			if database[action.type][(action.action):lower()] ~= nil then
 				skill = database[action.type][(action.action):lower()]
-                ui.hotbars[row].slot_icons[slot]:path(windower.addon_path .. '/images/icons/' .. (string.format("%s/%05d", action_map[action.type], skill.icon)) .. '.png')
+                ui.hotbars[row].slot_icons[slot]:path(resolve_action_icon(action_map[action.type], skill))
                 if skill.mpcost ~= nil and skill.mpcost ~= 0 then
                     ui.hotbars[row].slot_cost[slot]:color(ui.theme.mp_cost_color_red, ui.theme.mp_cost_color_green, ui.theme.mp_cost_color_blue)
                     ui.hotbars[row].slot_cost[slot]:text(tostring(skill.mpcost))
