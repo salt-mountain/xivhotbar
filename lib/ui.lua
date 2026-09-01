@@ -810,28 +810,64 @@ end
 --     end
 -- end
 -- load action into a hotbar slot
--- Not every action has an icon file. The client draws those spells with an
--- orb tinted by element, so fall back to the matching element icon instead
--- of a blank slot. Results are cached; file_exists is a disk hit.
+-- Icon lookup, in order of preference:
+--   1. images/icons/custom/<action name>.png, or <action name>-icon.png.
+--      Hand-made art lands here, and it wins because the bundled sets cannot
+--      always tell actions apart - all eight Rune Fencer runes share recast
+--      timer 10, so the recast-keyed file gives them one identical icon.
+--   2. The bundled set keyed by id: spell id for magic, recast timer id for
+--      abilities.
+--   3. For spells, the element icon. The client draws spells with no art of
+--      their own as an orb tinted by element, so this matches it. Abilities
+--      carry an element field too, but it means nothing for them - every
+--      Geomancer ability reports Light or Dark - so they use a generic icon
+--      instead of implying an element they do not have.
 local icon_path_cache = {}
 
-function resolve_action_icon(icon_folder, skill)
-    local key = icon_folder .. '/' .. tostring(skill.icon)
+local function first_existing(...)
+    for i = 1, select('#', ...) do
+        local candidate = select(i, ...)
+        if candidate ~= nil and windower.file_exists(windower.addon_path .. candidate) then
+            return windower.addon_path .. candidate
+        end
+    end
+    return nil
+end
+
+function resolve_action_icon(icon_folder, skill, is_spell)
+    local key = icon_folder .. '/' .. tostring(skill.icon) .. '/' .. tostring(skill.name)
     local cached = icon_path_cache[key]
     if cached ~= nil then return cached end
 
-    local relative = string.format('/images/icons/%s/%05d.png', icon_folder, skill.icon)
-    local path = windower.addon_path .. relative
+    local by_name = nil
+    if skill.name ~= nil then
+        local name = (skill.name):lower()
+        by_name = first_existing(
+            '/images/icons/custom/' .. name .. '.png',
+            '/images/icons/custom/' .. name .. '-icon.png',
+            '/images/icons/custom/' .. name:gsub('%s+', '-') .. '.png',
+            '/images/icons/custom/' .. name:gsub('%s+', '-') .. '-icon.png',
+            '/images/icons/custom/' .. name:gsub('%s+', '') .. '.png',
+            '/images/icons/custom/' .. name:gsub('%s+', '') .. '-icon.png')
+    end
 
-    if not windower.file_exists(path) and skill.element ~= nil then
-        local element = database:get_element_name(tonumber(skill.element))
-        if element ~= nil then
-            local element_path = windower.addon_path .. '/images/icons/elements/' .. element .. '.png'
-            if windower.file_exists(element_path) then
-                path = element_path
+    local by_id = string.format('/images/icons/%s/%05d.png', icon_folder, skill.icon)
+
+    local fallback = nil
+    if is_spell then
+        if skill.element ~= nil then
+            local element = database:get_element_name(tonumber(skill.element))
+            if element ~= nil then
+                fallback = '/images/icons/elements/' .. element .. '.png'
             end
         end
+    else
+        fallback = '/images/icons/custom/2hr.png'
     end
+
+    -- Last resort keeps the historical path even if nothing exists, so the
+    -- behavior on a stripped install is unchanged rather than nil.
+    local path = by_name or first_existing(by_id, fallback) or (windower.addon_path .. by_id)
 
     icon_path_cache[key] = path
     return path
@@ -914,7 +950,7 @@ local function load_action(ui, row, slot, action, player_vitals)
 			local slot_image = nil
 			if database[action.type][(action.action):lower()] ~= nil then
 				skill = database[action.type][(action.action):lower()]
-                ui.hotbars[row].slot_icons[slot]:path(resolve_action_icon(action_map[action.type], skill))
+                ui.hotbars[row].slot_icons[slot]:path(resolve_action_icon(action_map[action.type], skill, action.type == 'ma'))
                 if skill.mpcost ~= nil and skill.mpcost ~= 0 then
                     ui.hotbars[row].slot_cost[slot]:color(ui.theme.mp_cost_color_red, ui.theme.mp_cost_color_green, ui.theme.mp_cost_color_blue)
                     ui.hotbars[row].slot_cost[slot]:text(tostring(skill.mpcost))
