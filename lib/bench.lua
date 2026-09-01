@@ -28,8 +28,7 @@
 
 -- Frame-time measurement for hot paths. //htb bench start|stop|report|reset.
 -- Wrap code with bench.enter('label') and bench.leave('label'); both are a
--- single boolean test when inactive. Samples are buffered and only formatted
--- on report, so measuring does not itself cost I/O.
+-- single boolean test when inactive.
 
 local bench = {}
 
@@ -80,8 +79,7 @@ function bench.enter(label)
     open[label] = now()
 end
 
--- Called once per frame by the outermost instrumented handler, so the warmup
--- window is whole frames rather than ending partway through one.
+-- Call once per frame; the warmup window is whole frames.
 function bench.frame()
     if not bench.active then return end
     if warmup_left > 0 then
@@ -116,7 +114,6 @@ local function percentile(sorted, p)
     return sorted[idx]
 end
 
--- Returns an array of printable lines (caller decides how to display).
 function bench.report_lines()
     local lines = {}
     lines[#lines + 1] = string.format('bench: clock=%s, warmup=%d frames%s',

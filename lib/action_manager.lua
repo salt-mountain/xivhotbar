@@ -67,7 +67,6 @@ buff_table = {
 	[1011] = 'Odin',
 	[1012] = 'Titan',
 	[1013] = 'Atomos',
-	-- Geomancer luopan; the 0x068 pet packet names it 'Luopan'
 	[1014] = 'Luopan',
     
 }
@@ -423,9 +422,7 @@ function action_req_check(action_array)
     end
 
 end
--- Values above 99 in a spell's levels table are job point gift thresholds,
--- not character levels. Job points are only earned at 99, and whether the
--- gift is unlocked is settled by the learned check.
+-- Values above 99 are job point gift thresholds, not character levels.
 local function meets_level_requirement(required, level)
     if required > 99 then return level >= 99 end
     return level >= required
@@ -445,7 +442,6 @@ function check_spell_level(spell_name_en)
             if player.sub_job_level == nil or sub_required == nil then
                 return false
             end
-            -- Job point gifts do not apply to a subjob.
             return sub_required <= 99 and player.sub_job_level >= sub_required
         end
     end
@@ -743,14 +739,12 @@ function action_manager:load(player)
     local basepath = windower.addon_path .. 'data/'..player.name..'/'
 
     -- Create this character's job and General files if they don't exist yet.
-    -- Existing files are left completely alone.
     local created, failures = file_manager:ensure_character_files(player.name, player.main_job)
     for _, message in ipairs(created) do
         log(message)
     end
     if #failures > 0 then
-        -- Mirror to the Windower console as well as the chat log: if setup is
-        -- failing, the in-game chat may not be a reliable place to read this.
+        -- Also to the console: if setup is failing, chat may not be readable.
         local instructions = 'create data/' .. player.name .. '/' .. player.main_job
             .. '.lua and General.lua by hand, or copy them from data/examples/.'
         for _, message in ipairs(failures) do

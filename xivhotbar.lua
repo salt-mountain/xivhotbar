@@ -153,10 +153,6 @@ function set_battle_environment(in_battle)
 end
 
 
--- Claim keys only while there are actions behind them. A key bound to a
--- hotbar that failed to load is a key the game never sees again. Called after
--- every hotbar load, so a failed job change releases keys and a later
--- successful one takes them back.
 function sync_keybinds(force)
     local should_bind = not action_manager.setup_failed
     local is_bound = keyboard.bound_keys ~= nil
@@ -231,9 +227,7 @@ end
 -----------------
 
 -- ON UNLOAD --
--- Windower binds outlive the addon, so every key this addon bound has to be
--- released here. Without this, unloading leaves those keys pointing at a
--- command that no longer exists and they stay dead until Windower restarts.
+-- Windower binds outlive the addon, so every key bound has to be released.
 windower.register_event('unload', function()
 	keyboard:unbind_all()
 end)
@@ -323,8 +317,6 @@ windower.register_event('addon command', function(command, ...)
             settings.Dev.DevMode = not settings.Dev.DevMode
         end
         config.save(settings)
-        -- ui.theme is the same table as theme_options, so this takes effect
-        -- immediately for the dev_mode checks throughout the addon.
         theme_options.dev_mode = settings.Dev.DevMode
         log('dev logging ' .. (settings.Dev.DevMode and 'on' or 'off'))
     elseif command == 'bench' then

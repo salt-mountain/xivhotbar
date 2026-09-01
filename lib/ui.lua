@@ -811,17 +811,13 @@ end
 -- end
 -- load action into a hotbar slot
 -- Icon lookup, in order of preference:
---   1. images/icons/custom/<action name>.png, or <action name>-icon.png.
---      Hand-made art lands here, and it wins because the bundled sets cannot
---      always tell actions apart - all eight Rune Fencer runes share recast
---      timer 10, so the recast-keyed file gives them one identical icon.
---   2. The bundled set keyed by id: spell id for magic, recast timer id for
---      abilities.
---   3. For spells, the element icon. The client draws spells with no art of
---      their own as an orb tinted by element, so this matches it. Abilities
---      carry an element field too, but it means nothing for them - every
---      Geomancer ability reports Light or Dark - so they use a generic icon
---      instead of implying an element they do not have.
+--   1. images/icons/custom/<action name>.png, lowercased, optionally with an
+--      -icon suffix. Names can contain spaces or hyphens: "full circle.png",
+--      "full-circle.png" and "fullcircle.png" are all valid.
+--   2. The included game icons keyed by id: spell id for magic, recast timer
+--      id for abilities.
+--   3. Neither found: spells fall back to their element's icon, abilities to
+--      a generic one.
 local icon_path_cache = {}
 
 local function first_existing(...)
@@ -865,8 +861,6 @@ function resolve_action_icon(icon_folder, skill, is_spell)
         fallback = '/images/icons/custom/2hr.png'
     end
 
-    -- Last resort keeps the historical path even if nothing exists, so the
-    -- behavior on a stripped install is unchanged rather than nil.
     local path = by_name or first_existing(by_id, fallback) or (windower.addon_path .. by_id)
 
     icon_path_cache[key] = path
@@ -889,7 +883,7 @@ local function load_action(ui, row, slot, action, player_vitals)
 
     -- if slot is empty, leave it cleared
     if action == nil then
-        -- Settle recast state here: the per-frame sweep skips empty slots.
+        -- inner_check_recasts skips empty slots, so clear the overlay here.
         ui.hotbars[row].slot_recasts[slot]:hide()
         ui.hotbars[row].slot_recast_texts[slot]:text('')
         if ui.theme.hide_empty_slots == true then
@@ -1156,9 +1150,7 @@ function ui:load_player_hotbar(player_hotbar, environment, player_vitals)
 
     for h=1,self.theme.hotbar_number,1 do
         for i=1, self.theme.columns, 1 do
-            -- The environment table is absent when no actions loaded at all
-            -- (no job file, for instance). Draw empty slots rather than
-            -- indexing nil.
+            -- player_hotbar is empty when no job file loaded.
             local hotbar_row = player_hotbar and player_hotbar[environment] and player_hotbar[environment]['hotbar_' .. h]
             load_action(self, h, i, hotbar_row and hotbar_row['slot_' .. i] or nil, player_vitals)
         end
@@ -1278,8 +1270,6 @@ end
 
 -- check action recasts
 function ui:check_recasts(player_hotbar, environment, player_vitals)
-    -- Nothing loaded (no job file, for instance): skip the sweep entirely
-    -- rather than probing every slot every frame.
     if player_hotbar == nil or player_hotbar[environment] == nil then return end
 
     ui.recasts['ja'] = windower.ffxi.get_ability_recasts()

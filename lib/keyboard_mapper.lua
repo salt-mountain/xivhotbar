@@ -107,12 +107,7 @@ function keyboard:unbind_keys(rows, columns)
     end
 end
 
---[[
-    Release only the keys this addon bound. Windower binds are global runtime
-    state and outlive the addon, so anything left bound keeps swallowing
-    keypresses until Windower restarts. Unbinding by keybind table instead
-    would release keys we never claimed, including another addon's.
-]]
+-- Only what we bound: the keybind table may list keys we never claimed.
 function keyboard:unbind_all()
     if self.bound_keys == nil then return end
 

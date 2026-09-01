@@ -33,13 +33,6 @@ files = require('files')
 local current_job_file_path = ""
 local current_general_file_path = ""
 
---[[
-    Starter contents for a character's hotbar files.
-
-    Job files and the General file use different tables, so they get
-    different bodies. Both are created empty: the user fills them in, and
-    data/examples/ holds fuller layouts to copy from.
-]]
 local function starter_body(player_name, file_name, is_general)
     local notes =
         '-- ' .. file_name .. ' for ' .. player_name .. '\n' ..
@@ -76,17 +69,7 @@ local function starter_body(player_name, file_name, is_general)
         'return xivhotbar_keybinds_job\n'
 end
 
---[[
-    Create a character's hotbar file if it does not already exist.
-
-    Create-once semantics: an existing file is never read, rewritten or
-    overwritten here, because by then it is the user's own. Files are only
-    modified later through explicit user actions (dragging a slot, //htb add,
-    //htb set, //htb delete).
-
-    Returns true if the file is present afterwards, plus a message when one
-    was created, or false and an error if it could not be created.
-]]
+-- Never touches an existing file; by then it is the user's.
 function file_manager:ensure_hotbar_file(player_name, file_name, is_general)
     local relative_path = 'data/' .. player_name .. '/' .. file_name
 
@@ -99,8 +82,7 @@ function file_manager:ensure_hotbar_file(player_name, file_name, is_general)
         return false, 'could not create ' .. relative_path
     end
 
-    -- create_path only makes directories. Writing through the files library
-    -- would also emit its own "New file" notice, duplicating ours.
+    -- Writing through the files library would emit its own "New file" notice.
     local ok, err = pcall(function()
         target:create_path()
         local handle = assert(io.open(windower.addon_path .. relative_path, 'w'))
@@ -111,8 +93,7 @@ function file_manager:ensure_hotbar_file(player_name, file_name, is_general)
     end)
 
     if not ok then
-        -- A partial file would be treated as existing on the next load, so
-        -- remove it rather than leaving something unusable behind.
+        -- A partial file would look like an existing one next load.
         os.remove(windower.addon_path .. relative_path)
         return false, tostring(err)
     end
@@ -120,10 +101,6 @@ function file_manager:ensure_hotbar_file(player_name, file_name, is_general)
     return true, 'created ' .. relative_path
 end
 
---[[
-    Ensure a character has the two files the loader needs: the file for their
-    current job, and the shared General file.
-]]
 function file_manager:ensure_character_files(player_name, player_job)
     local created = {}
     local failures = {}
