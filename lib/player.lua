@@ -44,9 +44,6 @@ player.id = 0
 player.current_weapon = 0
 player.current_range_weapon = 0
 
-local debug = false
-
-
 function player:get_current_weapontype()
 	return current_weaponskill
 end

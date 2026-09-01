@@ -29,6 +29,10 @@
 
 local defaults = {}
 
+-- Template used to create data/settings.xml the first time the addon runs.
+-- After that, settings.xml is the source of truth and this file is only
+-- consulted for keys it does not contain.
+-- Edit data/settings.xml to change your settings.
 
 defaults.General = {}
 defaults.General.HideEnvironment = false 
@@ -41,10 +45,6 @@ defaults.Hotbar.ShowActionDescription = true
 defaults.Hotbar.HideEmptySlots = true
 defaults.Hotbar.HideActionName = false
 defaults.Hotbar.HideActionCost = true
-
-
-
-
 
 defaults.Hotbar.Offsets = {}
 defaults.Hotbar.Offsets.First  = { Vertical = false, OffsetX = 675, OffsetY = 1010 }
@@ -59,9 +59,6 @@ defaults.Hotbar.Theme.Slot = 'ffxiv'
 defaults.Hotbar.Theme.Frame = 'ffxiv'
 
 defaults.Hotbar.Style = {}
--- Number of hotbar rows shown, and the number of keybind rows bound from
--- data/keybinds.lua. Two rows are bound by default; raise this after adding
--- rows there.
 defaults.Hotbar.Style.HotbarCount = 2
 defaults.Hotbar.Style.HotbarLength = 12
 defaults.Hotbar.Style.SlotIconScale = 1

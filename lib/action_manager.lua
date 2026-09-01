@@ -216,14 +216,14 @@ local function add_action(am, action, environment, hotbar, slot)
     if environment == 'b' then environment = 'battle' elseif environment == 'f' then environment = 'field' end
 
     if am.hotbar[environment] == nil then
-        windower.console.write('XIVHotbar: invalid hotbar (environment)')
+        windower.console.write('XIVHotbar: Invalid hotbar (environment)')
         status = false
     end
 
     if (tonumber(hotbar) > am.hotbar_rows) then 
         status = false
     elseif am.hotbar[environment]['hotbar_' .. hotbar] == nil then
-        windower.console.write('XIVHotbar: invalid hotbar (hotbar number)')
+        windower.console.write('XIVHotbar: Invalid hotbar (hotbar number)')
         status = false
     end
     if status == true then
@@ -264,7 +264,7 @@ end
 
 -- create a default hotbar
 local function create_default_hotbar()
-    windower.console.write('XIVHotbar: no hotbar found. Creating a default hotbar.')
+    windower.console.write('XIVHotbar: No hotbar found. Creating a default hotbar.')
     --add default actions to the new hotbar
     action_manager:add_action(action_manager:build_custom('attack on', 'Attack', 'attack'), 'field', 1, 1)
     action_manager:add_action(action_manager:build_custom('check', 'Check', 'check'), 'field', 1, 2)
@@ -608,7 +608,7 @@ function action_manager:swap_actions(player, swap_table)
 				file_manager:write_changes(dest_action, d_row, d_slot, s_row, s_slot, 'b')
 			end
 		else
-			print("XIVHotbar: Cannot swap icons if the dragged icon is empty!")
+			log("Cannot swap: the slot you dragged from is empty.")
 		end
     else -- field
 
@@ -632,7 +632,7 @@ function action_manager:swap_actions(player, swap_table)
 				file_manager:write_changes(dest_action, d_row, d_slot, s_row, s_slot, 'f')
 			end
 		else
-			print("XIVHotbar: Cannot swap icons if the dragged icon is empty!")
+			log("Cannot swap: the slot you dragged from is empty.")
 		end
     end
 end
@@ -737,11 +737,11 @@ function action_manager:load(player)
     end
     if #failures > 0 then
         -- Also to the console: if setup is failing, chat may not be readable.
-        local instructions = 'create data/' .. player.name .. '/' .. player.main_job
+        local instructions = 'Create data/' .. player.name .. '/' .. player.main_job
             .. '.lua and General.lua by hand, or copy them from data/examples/.'
         for _, message in ipairs(failures) do
-            log('could not create hotbar file: ' .. message)
-            windower.console.write('XIVHotbar: could not create hotbar file: ' .. message)
+            log('Could not create hotbar file: ' .. message)
+            windower.console.write('XIVHotbar: Could not create hotbar file: ' .. message)
         end
         log(instructions)
         windower.console.write('XIVHotbar: ' .. instructions)
@@ -753,7 +753,7 @@ function action_manager:load(player)
     local job_file = loadfile(basepath .. player.main_job .. '.lua')
     local general_file = loadfile(basepath .. 'General.lua')
     if job_file == nil then 
-        log(string.format("couldn't load %s.lua. Check it for syntax errors.", player.main_job))
+        log(string.format("Couldn't load %s.lua. Check it for syntax errors.", player.main_job))
         self.setup_failed = true
         return
     else
@@ -785,7 +785,7 @@ function action_manager:load(player)
     end
 
     if general_file == nil then 
-        print("Error, couldn't find file 'General.lua'")
+        log("Couldn't load General.lua. Check it for syntax errors.")
     else
         setfenv(general_file, _general_fileG)
         local general_root = general_file()

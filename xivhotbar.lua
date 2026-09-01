@@ -52,7 +52,6 @@ tables = require('tables')
 packets = require('packets')
 resources = require('resources')
 require('luau')
-local bench = require('lib/bench')
 
 -- User settings --
 local defaults = require('defaults')
@@ -164,8 +163,8 @@ function sync_keybinds(force)
     if should_bind then
         keyboard:bind_keys(theme_options.rows, theme_options.columns)
     else
-        log('no hotbar data loaded, keybinds released.')
-        windower.console.write('XIVHotbar: no hotbar data loaded, keybinds released.')
+        log('No hotbar data loaded, keybinds released.')
+        windower.console.write('XIVHotbar: No hotbar data loaded, keybinds released.')
     end
 end
 
@@ -247,8 +246,7 @@ local function print_help()
 	log("mount [name]: Mount, or dismount if already mounted. Defaults to crab.")
 	log("summon <avatar>: Summon and load that avatar's stance bar.")
 	log("release: Release your pet.")
-	log("dev [on|off]: Toggle extra logging, including pet packet details.")
-	log("bench start|stop|report|reset: Frame-time measurement for development.")
+	log("dev [on|off]: Toggle diagnostic messages when the hotbar reloads.")
 	log("Dependencies:")
 	log("shortcuts: Used for weapon skills.")
 end
@@ -291,12 +289,10 @@ windower.register_event('addon command', function(command, ...)
 		end
         windower.chat.input('/ma '..args[1]..' <me>')
     elseif command == 'execute' then
-        bench.enter('keypress_execute')
         change_active_hotbar(tonumber(args[1]))
         if tonumber(args[2]) <= theme_options.columns then 
 			trigger_action(tonumber(args[2]))
         end
-        bench.leave('keypress_execute')
     elseif command == 'dev' then
         local requested = args[1] and args[1]:lower()
         if requested == 'on' then
@@ -308,21 +304,7 @@ windower.register_event('addon command', function(command, ...)
         end
         config.save(settings)
         theme_options.dev_mode = settings.Dev.DevMode
-        log('dev logging ' .. (settings.Dev.DevMode and 'on' or 'off'))
-    elseif command == 'bench' then
-        local sub = args[1] and args[1]:lower() or 'report'
-        if sub == 'start' then
-            local warmup, clock = bench.start(args[2])
-            log(string.format('bench started (clock: %s, discarding first %d frames)', clock, warmup))
-        elseif sub == 'stop' then
-            bench.stop()
-            log('bench stopped. //htb bench report to view results.')
-        elseif sub == 'reset' then
-            bench.reset()
-            log('bench samples cleared.')
-        else
-            for _, line in ipairs(bench.report_lines()) do log(line) end
-        end
+        log('Dev logging ' .. (settings.Dev.DevMode and 'on' or 'off'))
 	elseif command == 'move' then
 		state.demo = not state.demo
 		if state.demo then
@@ -330,7 +312,6 @@ windower.register_event('addon command', function(command, ...)
 			log("Click, then drag an action onto another slot to change its location.")
 			log("Click between the rows, then drag to move the hotbars.")
 			log("To save the changes, type '//htb move' then hit enter.")
-            print('XIVHotbar: Layout mode enabled')
 			box:enable()
 		else
 			save_hotbar(settings.Hotbar.Offsets.First, 1)
@@ -341,7 +322,7 @@ windower.register_event('addon command', function(command, ...)
 			save_hotbar(settings.Hotbar.Offsets.Sixth, 6)
 
 			config.save(settings)
-            print('XIVHotbar: Layout mode disabled, writing new positions to settings.xml.')
+            log('Layout mode disabled. Saved positions to settings.xml.')
 			box:disable()
 		end
     end
@@ -437,9 +418,6 @@ windower.register_event('prerender',function()
         return
     end
 
-    bench.frame()
-    bench.enter('prerender')
-
     if ui.feedback.is_active then
         ui:show_feedback()
     end
@@ -458,15 +436,9 @@ windower.register_event('prerender',function()
 			moved_row_info.removed_slot.active = false
             ui:load_player_hotbar(player:get_hotbar_info())
 		end
-        bench.enter('check_recasts')
         ui:check_recasts(player:get_hotbar_info())
-        bench.leave('check_recasts')
-        bench.enter('check_hover')
 		ui:check_hover()
-        bench.leave('check_hover')
     end
-
-    bench.leave('prerender')
 end)
 
 
@@ -624,7 +596,7 @@ windower.register_event('incoming chunk', function(id, original, modified, injec
 					end
 				end
 				player:update_weapon_type(nil)
-				if ui.theme.dev_mode then log("Weapon Unequiped. Reloading Hotbar.") end
+				if ui.theme.dev_mode then log("Weapon Unequipped. Reloading Hotbar.") end
 				reload_hotbar()
 				
 				return
@@ -729,7 +701,7 @@ end)
 
 windower.register_event('lose buff', function(id)
 	if id == 269 then -- Level Cap / Level Sync - Status Effect
-		log("Leve Sync'd Removed. Reloading Hotbar.")
+		if ui.theme.dev_mode then log("Level Sync Removed. Reloading Hotbar.") end
 		reload_hotbar()
 	elseif id == 55 then -- Astral Flow - Status Effect
 		reload_hotbar()
@@ -758,11 +730,6 @@ windower.register_event('incoming chunk', function(id,original,modified,injected
     end
 	
 end)
-
-
-
-
-
 
 ----------------------------- PET EVENT STUFF ----------------------------------------------------
 --This event is reloading hotbar if a pet dies or released
@@ -797,10 +764,6 @@ end
 windower.register_event('incoming chunk', function(id,original,modified,injected,blocked)
 	if state.ready == true then
 		local packet = packets.parse('incoming', original)
-		if ui.theme.dev_mode and id == 0x068 and packet['Owner ID'] == windower.ffxi.get_player().id then
-			log(string.format("pet packet: name '%s', index %s",
-				tostring(packet['Pet Name']), tostring(packet['Pet Index'])))
-		end
 		if id == 0x068 and no_pet == true then -- If the second pet update packet comes in
 			if packet['Owner ID'] == windower.ffxi.get_player().id then -- If player.id and pet owner ID are the same
 				if packet['Pet Index'] ~= 0 then -- If the pet has an index of non zero then pet summoned succesfully
@@ -815,22 +778,3 @@ windower.register_event('incoming chunk', function(id,original,modified,injected
 	end	
 end)
 
-
-
---- Reloads hotbar when using GM command. ** For development only ** 
-windower.register_event('incoming chunk', function(id,original,modified,injected,blocked)
-	if ui.theme.dev_mode then
-		if id == 0x0AC and gm_command == true then
-			if ui.theme.dev_mode then log("GM Command. Reloading Hotbar.", count) end
-			gm_command = false
-			reload_hotbar()
-		end
-	end
-end)
-windower.register_event('incoming text', function(text)
-	if ui.theme.dev_mode then
-		if string.find(text, "!changejob") or string.find(text, "!changesjob") then
-			gm_command = true
-		end
-	end
-end)

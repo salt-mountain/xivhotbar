@@ -36,23 +36,31 @@ local current_general_file_path = ""
 local function starter_body(player_name, file_name, is_general)
     local notes =
         '-- ' .. file_name .. ' for ' .. player_name .. '\n' ..
-        '-- Created because it did not exist yet. Nothing here is overwritten\n' ..
-        '-- on load, though //htb set, //htb add and //htb delete rewrite it.\n' ..
-        '-- See data/examples/ for fuller layouts.\n' ..
+        (is_general
+            and '-- Actions shared by every job.\n'
+             .. '-- Job specific LUA files (<JOB>.lua) hold actions for specific jobs.\n'
+            or  '-- Actions for this job only. General.lua holds actions shared by every job.\n') ..
         '--\n' ..
         '-- Each line is one slot:\n' ..
         "--   {'environment hotbar slot', 'type', 'action', 'target', 'label', 'icon'}\n" ..
         '--\n' ..
-        "--   type: ma, ja, ws, ct, pet, input, macro, gs\n" ..
-        "--   target: me, t, bt, stpc, stnpc, or blank\n" ..
+        '--   environment: which page the action appears on\n' ..
+        '--     valid options: battle, b, field, f\n' ..
+        '--   type: the type of action you want to bind\n' ..
+        '--     valid options: ma, ja, ws, ct, pet, input, macro, gs\n' ..
+        '--   target: the target of the action you want to bind\n' ..
+        '--     common options: me, t, bt, stpc, stnpc, or blank (any FFXI target works)\n' ..
+        '--   label: optional. The short text shown on the slot. Blank if omitted\n' ..
+        '--   icon: optional. A file name from images/icons/custom, without .png\n' ..
         '--\n'
 
     if is_general then
         return notes ..
-            "-- Shared across every job. Use the 'field' environment here; this is\n" ..
-            "-- the General page, toggled with the backslash key by default.\n" ..
+            "-- Normally you would use the 'field' environment here;\n" ..
+            '-- this is the General page, toggled with the backslash key by default.\n' ..
             '--\n' ..
-            "-- Example:  {'field 1 1', 'input', '/lastsynth', '', 'Craft'},\n\n" ..
+            "-- Example:  {'field 1 1', 'input', '/lastsynth', '', 'Craft'},\n" ..
+            '-- See data/examples/ for fuller layouts.\n\n' ..
             "xivhotbar_keybinds_general['Root'] = {\n" ..
             '}\n\n' ..
             'return xivhotbar_keybinds_general\n'
@@ -63,7 +71,8 @@ local function starter_body(player_name, file_name, is_general)
         "-- after a subjob (['WHM']), a weapon type (['Sword']), or a pet or\n" ..
         "-- stance (['Carbuncle'], ['Light Arts']).\n" ..
         '--\n' ..
-        "-- Example:  {'battle 1 1', 'ja', 'Berserk', 'me', 'Berserk'},\n\n" ..
+        "-- Example:  {'battle 1 1', 'ja', 'Berserk', 'me', 'Berserk'},\n" ..
+        '-- See data/examples/ for fuller layouts.\n\n' ..
         "xivhotbar_keybinds_job['Base'] = {\n" ..
         '}\n\n' ..
         'return xivhotbar_keybinds_job\n'
@@ -98,7 +107,7 @@ function file_manager:ensure_hotbar_file(player_name, file_name, is_general)
         return false, tostring(err)
     end
 
-    return true, 'created ' .. relative_path
+    return true, 'Created ' .. relative_path
 end
 
 function file_manager:ensure_character_files(player_name, player_job)
@@ -192,9 +201,6 @@ local function write_swap(file_location, action, d_row, d_slot, s_row, s_slot, e
 		end
 		for key, val in pairs(fileContent) do
 			if (val:contains(row_to_find)) then
-				if (debug == true) then
-					print("Found the row")
-				end
 				if (val:lower():contains(testAc)) then
 					found_row = true
 					val = string.gsub(val, "%w %d %d+", new_row)
