@@ -133,13 +133,6 @@ end
 
 
 
-local function fill_table(file)
-	file_content = {}
-	for line in file:lines() do
-		table.insert (file_content, line)
-	end
-	return file_content
-end
 
 local function find_in_file_remove(file_path, action, row, slot, environment)
 
@@ -240,87 +233,8 @@ function file_manager:update_file_path(player_name, player_job)
 	current_general_file_path = basepath .. "General.lua"
 end
 
-local function find_in_file(file_content, action, environment, pattern)
 
-	
-	local pattern_start = 0
-	local pattern_end = 0
-	local found_pattern_start = false
-	local found_pattern_end = false
-	local found_in_section = false
 
-	if (type(file_content) == "table") then
-		for key, val in pairs(file_content) do
-			local i, j = string.find(val, pattern)
-			if (i ~= nil and j ~= nil) then
-				found_pattern_start = true
-				pattern_start = key + 1
-			end
-			local k, l = string.find(val, '^}')
-			if (k ~= nil and l ~= nil and found_pattern_start == true) then
-				pattern_end = key -1
-				found_pattern_end = true 
-				break
-			end
-		end
-		if (found_pattern_end == true) then
-			for i = pattern_start,pattern_end do
-				local k, j = string.find(file_content[i], '\'')
-				if (k ~= nil and j ~= nil) then
-
-					local found_row = string.match(file_content[i], environment)
-					if (found_row ~= nil) then
-						found_in_section = true
-						break
-					end
-				end
-			end
-			if (found_in_section == false) then
-				new_row = "\t{'" .. environment .. "', '" .. action.type .. "', '" .. action.action .. "', '" .. action.target .. "', '" .. action.alias .. "'},"
-				table.insert(file_content, pattern_end+1, new_row)
-			end
-		end
-	end
-	return found_in_section
-end
-
-local function write_to_file(file_path, new_file_content)
-	file = io.open(file_path, 'w')
-	for index, value in ipairs(new_file_content) do
-		file:write(value..'\n')
-	end
-	io.close(file)
-end
-
-function file_manager:insert_action(action, prio, player_subjob, environment, row, slot)
-
-	local row_to_find = string.format('%s %d %d', environment, row, slot)
-	local fileContent = {}
-	local found = false
-	local file = {}
-	local file_to_open = ""
-
-	if (prio == 'g') then
-		file_to_open = current_general_file_path
-	else
-		file_to_open = current_job_file_path 
-	end
-	file = io.open(file_to_open , 'r')
-	if (file ~= nil) then
-		fileContent = fill_table(file)
-		io.close(file)
-		if (prio == 'm') then
-			found = find_in_file(fileContent, action, row_to_find, 'xivhotbar_keybinds_job%[\'Base\'%]')
-		elseif (prio == 's') then
-			found = find_in_file(fileContent, action, row_to_find, 'xivhotbar_keybinds_job%[\'' .. player_subjob .. '\'%]')
-		elseif (prio == 'g') then
-			found = find_in_file(fileContent, action, row_to_find, 'xivhotbar_keybinds_general%[\'Root\'%]')
-		end
-		if (found == false) then
-			write_to_file(file_to_open, fileContent)
-		end
-	end
-end
 
 
 function file_manager:write_changes(action, d_row, d_slot, s_row, s_slot, environment)

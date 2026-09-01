@@ -655,29 +655,6 @@ function action_manager:remove_action(player, remove_table)
 	end
 end
 
-function action_manager:insert_action(player_subjob, args)
-    if not args[6] then
-        log('set <m|s|g> <hotbar> <slot> <type> <action> <target> [label] [icon]')
-        log('m = main job, s = subjob, g = general (all jobs). The action lands on whichever page you are viewing.')
-        return
-    end
-    local prio = args[1]:lower()
-    local row = tonumber(args[2]) or 0
-    local slot = tonumber(args[3]) or 0
-    local action_type = args[4]:lower()
-    local action = args[5]
-    local target = args[6] or nil
-    local alias = args[7] or nil
-    local icon = args[8] or nil
-    if target ~= nil then target = target:lower() end
-	local environment_to_send = function()
-		if self.hotbar_settings.active_environment == 'field' then return 'f' else return 'b' end
-	end
-
-    local new_action = action_manager:build(action_type, action, target, alias, icon)
-   
-	file_manager:insert_action(new_action, prio, player_subjob, environment_to_send(), row, slot)
-end
 
 function action_manager:update_file_path(player_name, player_job)
 	file_manager:update_file_path(player_name, player_job)

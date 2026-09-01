@@ -133,10 +133,6 @@ function player:change_active_hotbar(new_hotbar)
 	action_manager:change_active_hotbar(new_hotbar)
 end
 
-function player:insert_action(args)
-	action_manager:insert_action(player.sub_job, args)
-end
-
 function player:determine_summoner_id(pet_name)
 	for buff_id, buff_name in pairs(buff_table) do
 		if buff_name == pet_name then

@@ -201,12 +201,6 @@ end
 -- Addon Commands -- --
 --------------------
 
--- command to set an action in a hotbar --
-function set_action_command(args)
-    player:insert_action(args)
-    reload_hotbar()
-end
-
 -----------------
 -- Bind Events --
 -----------------
@@ -241,8 +235,7 @@ end
 local function print_help()
 	log("Commands:")
 	log("move: Drag the hotbars to reposition them. Run again to save to settings.xml.")
-	log("set <m|s|g> <hotbar> <slot> <type> <action> <target> [label] [icon]: Write an action into your job file. m = main job, s = subjob, g = general (all jobs). Lands on the page you are viewing.")
-	log("reload: Reload the hotbar after editing a job file by hand.")
+	log("reload: Reload the hotbar after editing a job file by hand. The format is documented in the comments at the top of the file.")
 	log("mount [name]: Mount, or dismount if already mounted. Defaults to crab.")
 	log("summon <avatar>: Summon and load that avatar's stance bar.")
 	log("release: Release your pet.")
@@ -265,8 +258,6 @@ windower.register_event('addon command', function(command, ...)
 	elseif command == 'release' then --Custom change to release pet 
 		windower.chat.input('/pet release <me>') -- Need to us ct 
 		
-	elseif command == 'set' then
-        set_action_command(args)
 	elseif command == 'help' then
 		print_help()
     elseif command == 'mount' then
