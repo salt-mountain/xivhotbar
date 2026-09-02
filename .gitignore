@@ -8,7 +8,6 @@ data/*/
 !data/examples/
 
 # --- Local workspace ---
-# Upstream clones used for Phase 1 verification; not part of the project
 scratch/
 
 # --- OS noise ---
